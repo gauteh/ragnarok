@@ -1,5 +1,7 @@
 use actix_web::{web, http::header, middleware, App, HttpResponse, HttpServer, Responder, Error};
 use actix_cors::Cors;
+#[macro_use]
+extern crate log;
 use env_logger;
 use notmuch;
 use bytes::Bytes;
@@ -20,35 +22,67 @@ struct Thread {
     date: i64,
 }
 
-fn threads() -> impl Responder {
-    let mail_path = "/Users/gauteh/.mail";
-    let db = notmuch::Database::open (&mail_path, notmuch::DatabaseMode::ReadOnly).unwrap();
+struct Threads {
+    t: notmuch::Threads<'static, 'static>
+}
 
-    let query = db.create_query ("astrid").unwrap();
-    let threads = query.search_threads().unwrap();
+impl Threads {
+    pub fn new (q: String) -> Threads {
+        let db = Arc::new (notmuch::Database::open (
+                &String::from("/Users/gauteh/.mail"),
+                notmuch::DatabaseMode::ReadOnly).unwrap());
 
-    let t: Vec<bytes::Bytes> =
-        std::iter::once (Bytes::from ("["))
-        .chain (
-            threads
-            .map (
-                |th| Thread { authors: th.authors(),
-                        subject: th.subject(),
-                        date: th.oldest_date() })
-            .map (|th| Bytes::from(serde_json::ser::to_string (&th).unwrap()))
-            .intersperse (Bytes::from(","))
-            .chain (std::iter::once (Bytes::from("]"))))
-            .collect ();
+        debug! ("query: start");
+        let query = Arc::new (notmuch::Query::create (db.clone (), &q).unwrap ());
 
-    let s: IterOk<_, ()> = iter_ok (t);
+        debug! ("query: {}, threads: {}", q, query.count_threads ().unwrap ());
 
-    HttpResponse::Ok()
+        let threads = 
+            <notmuch::Query<'static> as notmuch::QueryExt>
+                ::search_threads (query.clone()).unwrap ();
+
+        debug! ("query: done");
+        Threads {
+            t: threads
+        }
+    }
+}
+
+impl Iterator for Threads {
+    type Item = Thread;
+
+    fn next (&mut self) -> Option<Thread> {
+        debug! ("iterating");
+        match self.t.next() {
+            Some (t) => Some (Thread {
+                authors: t.authors(),
+                subject: t.subject(),
+                date: t.oldest_date() }),
+            _ => None
+        }
+    }
+}
+
+
+fn mthreads() -> HttpResponse {
+    HttpResponse::Ok ()
         .content_type ("application/json")
-        .streaming (s)
+        .streaming (
+            {
+                iter_ok::<_, ()> (
+                std::iter::once (Bytes::from ("["))
+                    .chain (
+                        Threads::new (String::from("*"))
+                        .map (|th| Bytes::from(serde_json::ser::to_string (&th).unwrap()))
+                        .intersperse (Bytes::from(","))
+                        .chain (std::iter::once (Bytes::from("]"))))
+                )
+            }
+        )
 }
 
 fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "actix_web=info");
+    std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
     HttpServer::new(|| {
@@ -62,7 +96,7 @@ fn main() -> std::io::Result<()> {
                     .max_age(3600),
             )
             .wrap (middleware::Logger::default())
-            .route("/threads", web::get().to(threads))
+            .route("/threads", web::get().to_async (mthreads))
     })
     .bind("127.0.0.1:8088")?
     .run()
