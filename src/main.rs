@@ -1,7 +1,17 @@
-use actix_web::{web, middleware, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, http::header, middleware, App, HttpResponse, HttpServer, Responder, Error};
+use actix_cors::Cors;
 use env_logger;
 use notmuch;
+use bytes::Bytes;
+extern crate futures;
+use futures::stream::once;
+use futures::Stream;
+use futures::stream::{iter_ok, IterOk};
 use serde_derive::{Deserialize, Serialize};
+use supercow;
+use supercow::Supercow;
+use std::sync::Arc;
+use itertools::Itertools;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct Thread {
@@ -15,18 +25,26 @@ fn threads() -> impl Responder {
     let db = notmuch::Database::open (&mail_path, notmuch::DatabaseMode::ReadOnly).unwrap();
 
     let query = db.create_query ("astrid").unwrap();
-    let mut threads = query.search_threads().unwrap();
+    let threads = query.search_threads().unwrap();
 
-    let mut t: Vec<Thread> = vec! (); 
+    let t: Vec<bytes::Bytes> =
+        std::iter::once (Bytes::from ("["))
+        .chain (
+            threads
+            .map (
+                |th| Thread { authors: th.authors(),
+                        subject: th.subject(),
+                        date: th.oldest_date() })
+            .map (|th| Bytes::from(serde_json::ser::to_string (&th).unwrap()))
+            .intersperse (Bytes::from(","))
+            .chain (std::iter::once (Bytes::from("]"))))
+            .collect ();
 
-    while let Some (th) = threads.next () {
-        t.push (Thread { 
-            authors: th.authors(), 
-            subject: th.subject(),
-            date: th.oldest_date() });
-    }
-    
-    HttpResponse::Ok().json (t)
+    let s: IterOk<_, ()> = iter_ok (t);
+
+    HttpResponse::Ok()
+        .content_type ("application/json")
+        .streaming (s)
 }
 
 fn main() -> std::io::Result<()> {
@@ -35,6 +53,14 @@ fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
+            .wrap (
+                Cors::new ()
+                    .allowed_origin("http://localhost:4200")
+                    .allowed_methods(vec!["GET", "POST"])
+                    .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
+                    .allowed_header(header::CONTENT_TYPE)
+                    .max_age(3600),
+            )
             .wrap (middleware::Logger::default())
             .route("/threads", web::get().to(threads))
     })
