@@ -1,4 +1,5 @@
-use actix_web::{web, http::header, middleware, App, HttpResponse, HttpServer, Responder, Error};
+use actix_web::{web, http::header, middleware, App, HttpResponse, HttpServer,
+HttpRequest};
 use actix_cors::Cors;
 #[macro_use]
 extern crate log;
@@ -6,16 +7,12 @@ use env_logger;
 use notmuch;
 use bytes::Bytes;
 extern crate futures;
-use futures::stream::once;
-use futures::Stream;
-use futures::stream::{iter_ok, IterOk};
-use serde_derive::{Deserialize, Serialize};
-use supercow;
-use supercow::Supercow;
+use futures::stream::iter_ok;
+use serde_derive::Serialize;
 use std::sync::Arc;
 use itertools::Itertools;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Serialize)]
 struct Thread {
     authors: Vec<String>,
     subject: String,
@@ -32,16 +29,14 @@ impl Threads {
                 &String::from("/Users/gauteh/.mail"),
                 notmuch::DatabaseMode::ReadOnly).unwrap());
 
-        debug! ("query: start");
+        debug! ("query: {}..", q);
         let query = Arc::new (notmuch::Query::create (db.clone (), &q).unwrap ());
+        debug! ("query: done, threads: {}", query.count_threads().unwrap ());
 
-        debug! ("query: {}, threads: {}", q, query.count_threads ().unwrap ());
-
-        let threads = 
+        let threads =
             <notmuch::Query<'static> as notmuch::QueryExt>
                 ::search_threads (query.clone()).unwrap ();
 
-        debug! ("query: done");
         Threads {
             t: threads
         }
@@ -52,7 +47,6 @@ impl Iterator for Threads {
     type Item = Thread;
 
     fn next (&mut self) -> Option<Thread> {
-        debug! ("iterating");
         match self.t.next() {
             Some (t) => Some (Thread {
                 authors: t.authors(),
@@ -63,26 +57,21 @@ impl Iterator for Threads {
     }
 }
 
-
-fn mthreads() -> HttpResponse {
+fn mthreads(req: HttpRequest) -> HttpResponse {
+    let query: String = req.match_info().get ("query").unwrap_or ("*").parse ().unwrap ();
     HttpResponse::Ok ()
-        .content_type ("application/json")
+        .content_type ("application/x-ndjson")
         .streaming (
-            {
-                iter_ok::<_, ()> (
-                std::iter::once (Bytes::from ("["))
-                    .chain (
-                        Threads::new (String::from("*"))
-                        .map (|th| Bytes::from(serde_json::ser::to_string (&th).unwrap()))
-                        .intersperse (Bytes::from(","))
-                        .chain (std::iter::once (Bytes::from("]"))))
-                )
-            }
+            iter_ok::<_, ()> (
+                Threads::new (query)
+                .map (|th| Bytes::from(serde_json::ser::to_string (&th).unwrap()))
+                .intersperse (Bytes::from("\n"))
+            )
         )
 }
 
 fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "debug");
+    std::env::set_var("RUST_LOG", "hypocloid=debug,actix_web=info");
     env_logger::init();
 
     HttpServer::new(|| {
@@ -97,6 +86,7 @@ fn main() -> std::io::Result<()> {
             )
             .wrap (middleware::Logger::default())
             .route("/threads", web::get().to_async (mthreads))
+            .route("/threads/{query}", web::get().to_async (mthreads))
     })
     .bind("127.0.0.1:8088")?
     .run()
