@@ -1,3 +1,5 @@
+#![feature(test)]
+
 use actix_web::{web, http::header, middleware, App, HttpResponse, HttpServer,
 HttpRequest};
 use actix_cors::Cors;
@@ -12,16 +14,16 @@ use serde_derive::Serialize;
 use std::sync::Arc;
 use itertools::Itertools;
 
+mod test;
+
 #[derive(Serialize)]
-struct Thread {
+pub struct Thread {
     authors: Vec<String>,
     subject: String,
     date: i64,
 }
 
-struct Threads {
-    t: notmuch::Threads<'static, 'static>
-}
+pub struct Threads (notmuch::Threads<'static, 'static>);
 
 impl Threads {
     pub fn new (q: String) -> Threads {
@@ -31,15 +33,13 @@ impl Threads {
 
         debug! ("query: {}..", q);
         let query = Arc::new (notmuch::Query::create (db.clone (), &q).unwrap ());
-        debug! ("query: done, threads: {}", query.count_threads().unwrap ());
+        debug! ("query: done");
 
         let threads =
             <notmuch::Query<'static> as notmuch::QueryExt>
                 ::search_threads (query.clone()).unwrap ();
 
-        Threads {
-            t: threads
-        }
+        Threads (threads)
     }
 }
 
@@ -47,7 +47,7 @@ impl Iterator for Threads {
     type Item = Thread;
 
     fn next (&mut self) -> Option<Thread> {
-        match self.t.next() {
+        match self.0.next() {
             Some (t) => Some (Thread {
                 authors: t.authors(),
                 subject: t.subject(),
