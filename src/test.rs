@@ -57,5 +57,4 @@ mod test_notmuch {
 
         debug! ("entries: {}", i);
     }
-
 }

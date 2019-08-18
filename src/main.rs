@@ -1,11 +1,13 @@
 #![feature(test)]
 
-use actix_web::{web, http::header, middleware, App, HttpResponse, HttpServer,
-HttpRequest};
+use actix_web::{web, http::header, middleware, App,
+    HttpResponse, HttpServer, HttpRequest};
 use actix_cors::Cors;
+
 #[macro_use]
 extern crate log;
 use env_logger;
+
 use notmuch;
 use bytes::Bytes;
 extern crate futures;
@@ -18,6 +20,7 @@ mod test;
 
 #[derive(Serialize)]
 pub struct Thread {
+    id: String,
     authors: Vec<String>,
     subject: String,
     date: i64,
@@ -31,9 +34,8 @@ impl Threads {
                 &String::from("/Users/gauteh/.mail"),
                 notmuch::DatabaseMode::ReadOnly).unwrap());
 
-        debug! ("query: {}..", q);
+        debug! ("threads query: {}..", q);
         let query = Arc::new (notmuch::Query::create (db.clone (), &q).unwrap ());
-        debug! ("query: done");
 
         let threads =
             <notmuch::Query<'static> as notmuch::QueryExt>
@@ -49,6 +51,7 @@ impl Iterator for Threads {
     fn next (&mut self) -> Option<Thread> {
         match self.0.next() {
             Some (t) => Some (Thread {
+                id: t.id (),
                 authors: t.authors(),
                 subject: t.subject(),
                 date: t.oldest_date() }),
@@ -74,11 +77,13 @@ fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "hypocloid=debug,actix_web=info");
     env_logger::init();
 
+    info! ("hello!");
+
     HttpServer::new(|| {
         App::new()
             .wrap (
                 Cors::new ()
-                    .allowed_origin("http://localhost:4200")
+                    .allowed_origin("http://localhost:8080")
                     .allowed_methods(vec!["GET", "POST"])
                     .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
                     .allowed_header(header::CONTENT_TYPE)
