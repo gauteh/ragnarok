@@ -1,0 +1,47 @@
+{
+  "name": "astroid",
+  "version": "0.1.0",
+  "description": "Astroid",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack -p",
+    "check": "tsc",
+    "lint": "tslint src/*.ts{,x} src/**/*.ts{,x}",
+    "start": "webpack-dev-server --inline"
+  },
+  "keywords": [
+    "inferno",
+    "typescript"
+  ],
+  "author": "Gaute Hope",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "inferno": "^7.2.0",
+    "inferno-bootstrap": "^7.2.1",
+    "moment": "^2.24.0",
+    "ndjson-rxjs": "^1.0.0",
+    "rxjs": "^6.5.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "7.5.5",
+    "@babel/preset-env": "7.5.5",
+    "@babel/preset-typescript": "^7.3.3",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-inferno": "^6",
+    "clean-webpack-plugin": "^3.0.0",
+    "css-loader": "^3.1.0",
+    "html-webpack-plugin": "^3.2.0",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^7.1.0",
+    "source-map-loader": "^0.2.4",
+    "style-loader": "^0.23.1",
+    "tslint": "^5.18.0",
+    "typescript": "^3.5.3",
+    "webpack": "4.37.0",
+    "webpack-cli": "^3.3.6",
+    "webpack-dev-server": "3.7.2"
+  }
+}
