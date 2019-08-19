@@ -17,12 +17,16 @@
   "author": "Gaute Hope",
   "license": "MIT",
   "dependencies": {
+    "@types/mousetrap": "^1.6.3",
     "bootstrap": "^4.3.1",
     "inferno": "^7.2.0",
     "inferno-bootstrap": "^7.2.1",
+    "jquery": "^3.4.1",
     "moment": "^2.24.0",
+    "mousetrap": "^1.6.3",
     "ndjson-rxjs": "^1.0.0",
-    "rxjs": "^6.5.2"
+    "rxjs": "^6.5.2",
+    "scroll-to-element": "^2.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",

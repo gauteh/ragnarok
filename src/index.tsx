@@ -1,27 +1,23 @@
-import { Component, render, version } from 'inferno';
-import { Incrementer } from './components/Incrementer';
-import './main.css';
+import { Component, render } from 'inferno';
+import { ThreadIndex } from './components/ThreadIndex';
+
 import 'bootstrap/dist/css/bootstrap.css';
+import './main.css';
 
 const container = document.getElementById('app');
 
-class MyComponent extends Component<any, any> {
-	private readonly tsxVersion: number;
-
+class Astroid extends Component<any, any> {
 	constructor(props, context) {
 		super(props, context);
-
-		this.tsxVersion = 3.21; /* This is typed value */
 	}
 
 	public render() {
 		return (
 			<div>
-				<h1>{`Welcome to Inferno ${version} TSX ${this.tsxVersion}`}</h1>
-				<Incrementer name={'Crazy button'} />
+				<ThreadIndex query="tag:inbox"/>
 			</div>
 		);
 	}
 }
 
-render(<MyComponent />, container);
+render(<Astroid />, container);
