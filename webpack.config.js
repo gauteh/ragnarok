@@ -1,57 +1,34 @@
-const CleanWebpackPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require("path");
 
-module.exports = {
-	mode: "none",
-	entry: "./src/index.tsx", // Point to main file
-	output: {
-		path: __dirname + "/dist",
-		filename: "bundle.js"
-	},
-	resolve: {
-		extensions: ['.js', '.jsx', '.ts', '.tsx']
-	},
-	performance: {
-		hints: false
-	},
-	module: {
-		rules: [
-			{
-				test: /\.scss$/,
-				use: [
-					"style-loader", 						// creates style nodes from JS strings
-					"css-loader", 							// translates CSS into CommonJS
-					"sass-loader" 							// compiles Sass to CSS, using Node Sass by default
-				]
-			},
-			{
-				test: /\.css$/,
-				use: [
-					"style-loader", 						// creates style nodes from JS strings
-					"css-loader"							// translates CSS into CommonJS
-				]
-			},
-			{
-				test: /\.(js|jsx|tsx|ts)$/,   // All ts and tsx files will be process by
-				loaders: 'babel-loader',			// first babel-loader, then ts-loader
-				exclude: /node_modules/				// ignore node_modules
-			}
-		]
-	},
-	devServer: {
-		contentBase: "src/",
-		historyApiFallback: true,
-		port: 8080
-	},
-	plugins: [
-		new HtmlWebpackPlugin(
-			{
-				template: "./src/index.html",
-				inject: "body"
-			}
-		),
-		new CleanWebpackPlugin({
-			verbose: true
-		})
-	]
+const config = {
+  target: "electron-main",
+  devtool: "source-map",
+  entry: "./src/main.ts",
+  output: {
+    filename: "main.js",
+    path: path.resolve(__dirname, "dist")
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(ts|tsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader"
+        }
+      }
+    ]
+  },
+  resolve: {
+    extensions: [".ts", ".tsx", ".js"]
+  },
+  node: {
+    __dirname: false,
+    __filename: false
+  }
 };
+
+module.exports = (env, argv) => {
+  return config;
+};
+

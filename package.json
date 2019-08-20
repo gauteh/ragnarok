@@ -2,13 +2,14 @@
   "name": "astroid",
   "version": "0.1.0",
   "description": "Astroid",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack -p",
+		"build:inferno": "webpack --mode development --config webpack.inferno.config.js",
+    "build": "webpack --mode development",
     "check": "tsc",
     "lint": "tslint src/*.ts{,x} src/**/*.ts{,x}",
-    "start": "webpack-dev-server --inline"
+    "start": "electron ./dist/main.js"
   },
   "keywords": [
     "inferno",
@@ -37,6 +38,7 @@
     "babel-plugin-inferno": "^6",
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.1.0",
+    "electron": "^6.0.3",
     "html-webpack-plugin": "^3.2.0",
     "node-sass": "^4.12.0",
     "sass-loader": "^7.1.0",

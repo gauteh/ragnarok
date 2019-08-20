@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"outDir": "dist/",
 		"pretty": true,
 		"target": "esnext",
 		"module": "esnext",
@@ -18,7 +19,7 @@
 		"skipLibCheck": true,
 		"noUnusedParameters": true,
 		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
+		"noFallthroughCasesInSwitch": true
 	},
 	"include": [
 		"src/**/*",
