@@ -5,10 +5,11 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-		"build:inferno": "webpack --mode development --config webpack.inferno.config.js",
-    "build": "webpack --mode development",
+    "build:inferno": "webpack --mode development --config webpack.inferno.config.js",
+    "build": "npm run build:inferno && webpack --mode development",
     "check": "tsc",
     "lint": "tslint src/*.ts{,x} src/**/*.ts{,x}",
+    "serve": "webpack-dev-server --inline --config webpack.inferno.config.js",
     "start": "electron ./dist/main.js"
   },
   "keywords": [

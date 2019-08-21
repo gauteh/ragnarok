@@ -45,5 +45,15 @@ module.exports = {
 			}
 		]
 	},
-	plugins: [ htmlPlugin ]
+	devServer: {
+		contentBase: "src/",
+		historyApiFallback: true,
+		port: 8080
+	},
+	plugins: [
+		htmlPlugin,
+		new CleanWebpackPlugin({
+			verbose: true
+		})
+	]
 };
