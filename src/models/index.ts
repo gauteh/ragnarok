@@ -1,2 +1,2 @@
-import Thread from './thread';
+export { Thread } from './thread';
 

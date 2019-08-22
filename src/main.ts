@@ -1,12 +1,9 @@
-const url = require("url");
-const path = require("path");
-
 import { app, BrowserWindow } from "electron";
 
 let window: BrowserWindow | null;
 
 const createWindow = () => {
-  window = new BrowserWindow({ width: 800, height: 600 });
+  window = new BrowserWindow({ width: 800, height: 600, titleBarStyle: 'hidden' });
 
 	window.loadFile ("index.html");
 
