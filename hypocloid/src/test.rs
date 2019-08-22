@@ -38,6 +38,7 @@ mod test_notmuch {
         init ();
 
         use super::super::*;
+        use threads::*;
 
         let threads = Threads::new (String::from ("*"));
 

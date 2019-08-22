@@ -11,7 +11,7 @@ use env_logger;
 extern crate futures;
 
 mod test;
-mod threads;
+pub mod threads;
 
 fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "hypocloid=debug,actix_web=info");
