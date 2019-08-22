@@ -7,17 +7,17 @@ import './main.css';
 const container = document.getElementById('app');
 
 class Astroid extends Component<any, any> {
-	constructor(props, context) {
-		super(props, context);
-	}
+  constructor(props, context) {
+    super(props, context);
+  }
 
-	public render() {
-		return (
-			<div>
-				<ThreadIndex query="tag:inbox"/>
-			</div>
-		);
-	}
+  public render() {
+    return (
+      <div>
+        <ThreadIndex query="tag:inbox"/>
+      </div>
+    );
+  }
 }
 
 render(<Astroid />, container);

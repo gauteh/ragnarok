@@ -99,15 +99,15 @@ export class ThreadIndex extends Component<Props, State> {
 
     return (
       threads.map ( (thread) => (
-        <tr id={"t" + thread.id} key={thread.id} class={ thread.id === selected ? "bg-primary" : ""}>
+        <tr id={"t" + thread.id} key={thread.id} class={ thread.id === selected ? "bg-primary" : "" + " " +  thread.unread ? "ti-unread" : ""}>
           <td class="ti-date">
-            {formatDate (thread.date)}
+            {formatDate (thread.newest_date)}
           </td>
           <td>
             {thread.authors}
           </td>
           <td>
-            <span class="badge badge-secondary">3</span>
+            <span class="badge badge-secondary">{thread.total_messages}</span>
           </td>
           <td>
             {thread.subject}

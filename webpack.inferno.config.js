@@ -4,12 +4,12 @@ const path = require("path");
 
 const htmlPlugin = new HtmlWebPackPlugin({
   template: "./src/index.html",
-  filename: "./index.html"
+  filename: "./index.html",
+  inject: false
 });
 
 module.exports = {
-	target: "electron-renderer",
-	devtool: "source-map",
+  mode: "none",
 	entry: "./src/index.tsx", // Point to main file
 	output: {
 		filename: "index.js",
