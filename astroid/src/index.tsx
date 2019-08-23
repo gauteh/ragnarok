@@ -21,3 +21,4 @@ class Astroid extends Component<any, any> {
 }
 
 render(<Astroid />, container);
+
