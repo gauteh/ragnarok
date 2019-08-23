@@ -1,5 +1,5 @@
 import { Component, render } from 'inferno';
-import mousetrap from 'mousetrap';
+import * as mousetrap from 'mousetrap';
 import { ThreadIndex } from './components/ThreadIndex';
 
 import 'bootstrap/dist/css/bootstrap.css';

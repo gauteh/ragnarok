@@ -5,8 +5,7 @@ import * as scrollto from 'scroll-to-element';
 import * as moment from 'moment';
 import * as cx from 'classnames';
 
-import { stream } from 'ndjson-rxjs';
-import { finalize, bufferCount, tap, take } from 'rxjs/operators';
+import { finalize, tap, take } from 'rxjs/operators';
 import { Thread } from 'models';
 import { getThreads } from 'hypocloid';
 
