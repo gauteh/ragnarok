@@ -8,6 +8,7 @@ import * as cx from 'classnames';
 import { stream } from 'ndjson-rxjs';
 import { finalize, bufferCount, tap, take } from 'rxjs/operators';
 import { Thread } from 'models';
+import { getThreads } from 'hypocloid';
 
 import './ThreadIndex.scss';
 
@@ -25,8 +26,6 @@ export class ThreadIndex extends Component<Props, State> {
     threads: new Array<Thread>(),
     selected: undefined
   };
-
-  private host = 'http://localhost:8088';
 
   constructor(props, context) {
     super(props, context);
@@ -67,9 +66,8 @@ export class ThreadIndex extends Component<Props, State> {
   {
     console.log ('loading..:', this.props.query);
     this.state.threads.length = 0;
-    stream (this.host + '/threads/' + this.props.query).pipe (
+    getThreads (this.props.query).pipe (
       take (1000),
-      bufferCount(100),
       tap ((e: Thread[]) => {
         this.state.threads.push (...e);
         this.setState ({

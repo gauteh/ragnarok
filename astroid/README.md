@@ -1,19 +1,23 @@
-#Typescript + JSX example (TSX) for Inferno
+# Astroid
 
-## Overview
+Frontend written in [TypeScript](https://www.typescriptlang.org) using the
+[inferno.js](https://infernojs.org) framework. It is set up to be run in a
+browser (for development mostly) or in [electron](https://electronjs.org).
+Electron does not do much except load the application currently, so this may be
+replaced by something custom or more lightweight at a later time.
 
-Beginner friendly example to get started with Inferno (JSX + typescript) with webpack.
-
-## Getting started
-
-Clone this repository locally and then run `npm install`.
-
-To run the example app, run `npm start`. View `http://localhost:8080` in your browser to see the example.
-
-## Setup
-
-Run `npm run check` to validate all types
+> You need a running instance of the backend (`hypocloid`) locally.
 
 ## Requirements
 
-NodeJS v6+ is required.
+1. Recent NodeJS and npm, e.g. through [nvm](https://github.com/nvm-sh/nvm)
+2. `npm install`
+
+## Running in browser using development server
+
+1. `npm run serve`
+
+## Running in Electron
+
+1. `npm run build && npm run start`
+
