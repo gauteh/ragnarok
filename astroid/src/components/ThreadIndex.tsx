@@ -3,6 +3,7 @@ import { Component } from 'inferno';
 import mousetrap from 'mousetrap';
 import * as scrollto from 'scroll-to-element';
 import * as moment from 'moment';
+import * as cx from 'classnames';
 
 import { stream } from 'ndjson-rxjs';
 import { finalize, bufferCount, tap, take } from 'rxjs/operators';
@@ -99,17 +100,27 @@ export class ThreadIndex extends Component<Props, State> {
 
     return (
       threads.map ( (thread) => (
-        <tr id={"t" + thread.id} key={thread.id} class={ thread.id === selected ? "bg-primary" : "" + " " +  thread.unread ? "ti-unread" : ""}>
+        <tr id={"t" + thread.id}
+          key={thread.id}
+          class={cx ({
+              'bg-primary': thread.id === selected,
+              'ti-unread': thread.unread })}>
           <td class="ti-date">
             {formatDate (thread.newest_date)}
           </td>
-          <td>
+          <td class="ti-authors">
             {thread.authors}
           </td>
           <td>
-            <span class="badge badge-secondary">{thread.total_messages}</span>
+            <span class={
+              cx ('badge', {
+                'badge-primary': thread.unread,
+                'badge-secondary': !thread.unread
+                })}>
+              {thread.total_messages}
+            </span>
           </td>
-          <td>
+          <td class="ti-subject">
             {thread.subject}
           </td>
         </tr>
@@ -120,7 +131,7 @@ export class ThreadIndex extends Component<Props, State> {
   public render() {
     return (
       <div>
-        <table class="table table-dark table-borderless table-sm">
+        <table class="ti table table-dark table-borderless table-sm">
           <this.Rows threads={this.state.threads} selected={this.state.selected}/>
         </table>
 

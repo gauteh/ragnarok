@@ -1,4 +1,25 @@
-.ti-date {
-    width: 100px;
+.ti {
+    width: 100%;
 }
+
+.ti-subject {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ti-date {
+    max-width: 150px;
+    white-space: nowrap;
+}
+
+.ti-authors {
+    max-width: 150px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+
 
