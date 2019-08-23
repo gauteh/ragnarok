@@ -1,1 +1,1 @@
-export * from './hypocloid';
+export { getThreads } from './api';

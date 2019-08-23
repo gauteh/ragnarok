@@ -1,5 +1,6 @@
 const CleanWebpackPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const path = require("path");
 
 const htmlPlugin = new HtmlWebPackPlugin({
@@ -10,13 +11,15 @@ const htmlPlugin = new HtmlWebPackPlugin({
 
 module.exports = {
   mode: "none",
+  devtool: "inline-source-map",
 	entry: "./src/index.tsx", // Point to main file
 	output: {
 		filename: "index.js",
 		path: path.resolve(__dirname, "dist")
 	},
 	resolve: {
-		extensions: ['.js', '.jsx', '.ts', '.tsx']
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    plugins: [new TsconfigPathsPlugin()]
 	},
 	performance: {
 		hints: false
@@ -54,6 +57,6 @@ module.exports = {
 		htmlPlugin,
 		new CleanWebpackPlugin({
 			verbose: true
-		})
+    })
 	]
 };

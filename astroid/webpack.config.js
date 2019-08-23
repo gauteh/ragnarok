@@ -1,4 +1,5 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const path = require("path");
 
 const htmlPlugin = new HtmlWebPackPlugin({
@@ -43,7 +44,8 @@ const config = {
     ]
   },
   resolve: {
-    extensions: [".ts", ".tsx", ".js"]
+    extensions: [".ts", ".tsx", ".js"],
+    plugins: [new TsconfigPathsPlugin()]
   },
   node: {
     __dirname: false,
