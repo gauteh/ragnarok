@@ -1,4 +1,4 @@
-import { Component } from 'inferno';
+import { Component, createRef } from 'inferno';
 
 import mousetrap from 'mousetrap';
 import * as scrollto from 'scroll-to-element';
@@ -7,8 +7,13 @@ import * as cx from 'classnames';
 
 import { finalize, tap, take } from 'rxjs/operators';
 import { Thread } from 'models';
-import { getThreads } from 'hypocloid';
+import * as hypo from 'hypocloid';
 
+import { findDOMNode } from 'inferno-extras';
+import { renderToString } from 'inferno-server';
+import ClusterizeJS from 'clusterize.js';
+
+import 'clusterize.js/clusterize.css';
 import './ThreadIndex.scss';
 
 interface Props {
@@ -26,12 +31,18 @@ export class ThreadIndex extends Component<Props, State> {
     selected: undefined
   };
 
+  clusterize = null;
+  scrollElem = null;
+  contentElem = null;
+
   constructor(props, context) {
     super(props, context);
 
     mousetrap.bind ('j', () => {
       const idx = this.state.threads
         .findIndex ((t) => t.id === this.state.selected);
+
+      this.selectThreadN (idx + 1);
 
       if (idx >= 0 && idx < this.state.threads.length - 1) {
         this.selectThread (this.state.threads[idx + 1].id);
@@ -61,12 +72,43 @@ export class ThreadIndex extends Component<Props, State> {
     scrollto ("#t" + id, { align: 'middle', duration: fast ? 100 : 100 });
   }
 
+  private selectThreadN (idx: number) {
+    const id = "t" + this.state.threads[idx].id;
+    const el = document.getElementById (id);
+    el.classList.add ("bg-primary");
+    this.scrollElem.scrollTop = idx * el.scrollHeight;
+    el.scrollIntoView ();
+    // scrollto (el, { align: 'middle', duration: 100 });
+    console.log (el, this.clusterize.rows);
+  }
+
+  componentDidMount () {
+    const scrollElem = findDOMNode(this.scrollElem);
+    const contentElem = findDOMNode(this.contentElem);
+
+    const rows = this.Rows({threads: this.state.threads, selected: this.state.selected}).map (renderToString);
+
+    this.clusterize = new ClusterizeJS({
+      rows: rows,
+      scrollElem: scrollElem,
+      contentElem: contentElem,
+      show_no_data_row: false
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.clusterize) {
+      this.clusterize.destroy(true);
+      this.clusterize = null;
+    }
+  }
+
   public loadThreads = () =>
   {
     console.log ('loading..:', this.props.query);
     this.state.threads.length = 0;
-    getThreads (this.props.query).pipe (
-      take (1000),
+    hypo.getThreads (this.props.query).pipe (
+      take (2),
       tap ((e: Thread[]) => {
         this.state.threads.push (...e);
         this.setState ({
@@ -82,6 +124,9 @@ export class ThreadIndex extends Component<Props, State> {
             selected: e[0].id
           });
         }
+
+        const rows = this.Rows({threads: e, selected: this.state.selected}).map (renderToString);
+        this.clusterize.append (rows);
       }),
       finalize (() => console.log ('done', this.state.threads.length))
     ).subscribe ();
@@ -127,12 +172,17 @@ export class ThreadIndex extends Component<Props, State> {
 
   public render() {
     return (
-      <div>
-        <table class="ti table table-dark table-borderless table-sm">
-          <this.Rows threads={this.state.threads} selected={this.state.selected}/>
-        </table>
-
-      </div>
+        <div
+          ref={node => {
+            this.scrollElem = node;
+          }}
+            class="clusterize-scroll">
+          <table class="ti table table-dark table-borderless table-sm">
+            <tbody ref={node => { this.contentElem = node }}
+            class="clusterize-content">
+            </tbody>
+          </table>
+        </div>
     );
   }
 }

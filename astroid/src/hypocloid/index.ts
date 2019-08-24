@@ -1,1 +1,1 @@
-export { getThreads } from './api';
+export * from './threads';

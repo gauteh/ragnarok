@@ -20,6 +20,9 @@
     text-overflow: ellipsis;
 }
 
-
+.clusterize-scroll {
+    max-height: 100vh !important;
+    overflow: auto;
+}
 
 
