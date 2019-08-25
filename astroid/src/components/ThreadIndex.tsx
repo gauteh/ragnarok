@@ -34,6 +34,7 @@ export class ThreadIndex extends Component<Props, State> {
   clusterize = null;
   scrollElem = null;
   contentElem = null;
+  rowHeight = 27; // px
 
   constructor(props, context) {
     super(props, context);
@@ -58,16 +59,23 @@ export class ThreadIndex extends Component<Props, State> {
       }
     });
 
-    mousetrap.bind ('1', () =>
-      this.selectThread (this.state.threads[0].id, true));
+    mousetrap.bind ('1', () => {
+      this.unselectThread (this.state.selected);
+      this.selectThread (this.state.threads[0].id, 0)
+    });
 
-    mousetrap.bind ('0', () =>
-      this.selectThread (this.state.threads[this.state.threads.length-1].id, true));
+    mousetrap.bind ('0', () => {
+      this.unselectThread (this.state.selected);
+      this.selectThread (this.state.threads[this.state.threads.length-1].id, this.state.threads.length-1)
+    });
 
     this.loadThreads();
   }
 
   private unselectThread (id: string) {
+    /* XXX: if we somehow managed to scroll out of the
+     * current cluster without unselecting the thread
+     * this row will still have the selected class. */
     const el = document.getElementById ("t" + id);
     el.classList.remove ("bg-primary");
     this.setState ({ selected: undefined });
@@ -76,8 +84,15 @@ export class ThreadIndex extends Component<Props, State> {
   private selectThread (id: string, idx: number) {
     this.setState ({ selected: id });
     const el = document.getElementById ("t" + id);
-    el.classList.add ("bg-primary");
-    this.scrollElem.scrollTop = idx * el.scrollHeight;
+    if (el !== null) {
+      el.classList.add ("bg-primary");
+      el.scrollIntoView ();
+    } else {
+
+      /* the row is not present in the DOM, scroll and let clusterize callback
+       * fix the selected state. */
+      this.scrollElem.scrollTop = idx * this.rowHeight;
+    }
   }
 
   componentDidMount () {
@@ -90,7 +105,18 @@ export class ThreadIndex extends Component<Props, State> {
       rows: rows,
       scrollElem: scrollElem,
       contentElem: contentElem,
-      show_no_data_row: false
+      show_no_data_row: false,
+      callbacks: {
+        clusterChanged: () => {
+          /* the element may not be present in DOM when user initiated scroll
+           * so we have to re-select it */
+          if (this.state.selected !== undefined) {
+            const el = document.getElementById ("t" + this.state.selected);
+            if (el !== null) {
+              el.classList.add ("bg-primary");
+            }
+          }
+        }}
     });
   }
 
@@ -139,7 +165,7 @@ export class ThreadIndex extends Component<Props, State> {
     };
 
     return (
-      threads.map ( (thread) => (
+      threads.map ((thread) => (
         <tr id={"t" + thread.id}
           key={thread.id}
           class={cx ({
