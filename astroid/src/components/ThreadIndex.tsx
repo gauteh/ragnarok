@@ -1,11 +1,10 @@
 import { Component, createRef } from 'inferno';
 
 import mousetrap from 'mousetrap';
-import * as scrollto from 'scroll-to-element';
 import * as moment from 'moment';
 import * as cx from 'classnames';
 
-import { finalize, tap, take } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 import { Thread } from 'models';
 import * as hypo from 'hypocloid';
 
@@ -86,12 +85,11 @@ export class ThreadIndex extends Component<Props, State> {
     const el = document.getElementById ("t" + id);
     if (el !== null) {
       el.classList.add ("bg-primary");
-      el.scrollIntoView ();
+      el.scrollIntoView ({behavior: 'smooth', block: 'center'});
     } else {
-
       /* the row is not present in the DOM, scroll and let clusterize callback
        * fix the selected state. */
-      this.scrollElem.scrollTop = idx * this.rowHeight;
+      this.scrollElem.scroll ({ top: idx * this.rowHeight, behavior: 'auto' });
     }
   }
 
@@ -131,8 +129,8 @@ export class ThreadIndex extends Component<Props, State> {
   {
     console.log ('loading..:', this.props.query);
     this.state.threads.length = 0;
+    const start = new Date ();
     hypo.getThreads (this.props.query).pipe (
-      // take (2),
       tap ((e: Thread[]) => {
         this.state.threads.push (...e);
         this.setState ({
@@ -152,7 +150,7 @@ export class ThreadIndex extends Component<Props, State> {
         const rows = this.Rows({threads: e, selected: this.state.selected}).map (renderToString);
         this.clusterize.append (rows);
       }),
-      finalize (() => console.log ('done', this.state.threads.length))
+      finalize (() => console.log ('done: ', this.state.threads.length, 'in', (new Date().getTime() - start.getTime()) / 1000, ' seconds.'))
     ).subscribe ();
   }
 
