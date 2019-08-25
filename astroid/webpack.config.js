@@ -10,7 +10,7 @@ const htmlPlugin = new HtmlWebPackPlugin({
 
 const config = {
   target: "electron-main",
-  devtool: "source-map",
+  devtool: "inline-source-map",
   entry: {
     main: "./src/main.ts",
     index: "./src/index.tsx"

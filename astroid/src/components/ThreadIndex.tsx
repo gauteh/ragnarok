@@ -42,10 +42,9 @@ export class ThreadIndex extends Component<Props, State> {
       const idx = this.state.threads
         .findIndex ((t) => t.id === this.state.selected);
 
-      this.selectThreadN (idx + 1);
-
       if (idx >= 0 && idx < this.state.threads.length - 1) {
-        this.selectThread (this.state.threads[idx + 1].id);
+        this.unselectThread (this.state.selected);
+        this.selectThread (this.state.threads[idx + 1].id, idx+1);
       }
     });
 
@@ -54,7 +53,8 @@ export class ThreadIndex extends Component<Props, State> {
         .findIndex ((t) => t.id === this.state.selected);
 
       if (idx > 0) {
-        this.selectThread (this.state.threads[idx - 1].id);
+        this.unselectThread (this.state.selected);
+        this.selectThread (this.state.threads[idx - 1].id, idx-1);
       }
     });
 
@@ -67,19 +67,17 @@ export class ThreadIndex extends Component<Props, State> {
     this.loadThreads();
   }
 
-  private selectThread (id: string, fast: boolean = false) {
-    this.setState ({ selected: id });
-    scrollto ("#t" + id, { align: 'middle', duration: fast ? 100 : 100 });
+  private unselectThread (id: string) {
+    const el = document.getElementById ("t" + id);
+    el.classList.remove ("bg-primary");
+    this.setState ({ selected: undefined });
   }
 
-  private selectThreadN (idx: number) {
-    const id = "t" + this.state.threads[idx].id;
-    const el = document.getElementById (id);
+  private selectThread (id: string, idx: number) {
+    this.setState ({ selected: id });
+    const el = document.getElementById ("t" + id);
     el.classList.add ("bg-primary");
     this.scrollElem.scrollTop = idx * el.scrollHeight;
-    el.scrollIntoView ();
-    // scrollto (el, { align: 'middle', duration: 100 });
-    console.log (el, this.clusterize.rows);
   }
 
   componentDidMount () {
@@ -108,7 +106,7 @@ export class ThreadIndex extends Component<Props, State> {
     console.log ('loading..:', this.props.query);
     this.state.threads.length = 0;
     hypo.getThreads (this.props.query).pipe (
-      take (2),
+      // take (2),
       tap ((e: Thread[]) => {
         this.state.threads.push (...e);
         this.setState ({
