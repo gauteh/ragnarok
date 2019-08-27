@@ -10,7 +10,7 @@ import * as hypo from 'hypocloid';
 
 import { findDOMNode } from 'inferno-extras';
 import { renderToString } from 'inferno-server';
-import * as ClusterizeJS from 'clusterize.js';
+import ClusterizeJS from 'clusterize.js';
 
 import 'clusterize.js/clusterize.css';
 import './ThreadIndex.scss';

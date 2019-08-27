@@ -6,11 +6,15 @@
 
 ## Building
 
-1. `cargo build`
+1. `$ cargo build`
+
+## Testing
+
+1. `$ cargo test`
 
 ## Running
 
-1. `cargo run`
+1. `$ cargo run`
 
 You should now be able to query your notmuch database using `curl`:
 

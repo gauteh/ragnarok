@@ -1,31 +1,25 @@
 {
-	"compilerOptions": {
-		"outDir": "dist/",
-		"pretty": true,
-		"target": "esnext",
-		"module": "esnext",
-		"allowSyntheticDefaultImports": true,
-		"preserveConstEnums": true,
-		"sourceMap": true,
-		"moduleResolution": "node",
-		"lib": ["es2017", "dom"],
-		"types": [
-			"inferno"
-		],
-		"jsx": "preserve",
-		"noUnusedLocals": true,
+  "compilerOptions": {
 		"baseUrl": "./src",
     "paths": {
       "*": ["*"]
     },
-		"noEmit": true,
+    "module": "esnext",
+    "target": "esnext",
+		"allowSyntheticDefaultImports": true,
+		"moduleResolution": "node",
+		"lib": ["es2017", "dom"],
+		"types": [
+			"inferno",
+      "jest"
+		],
+    "sourceMap": true,
+    "inlineSources": true,
+    "jsx": "preserve",
+    "importHelpers": true,
 		"skipLibCheck": true,
-		"noUnusedParameters": true,
-		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true
-	},
-	"include": [
-		"src/**/*",
-		"node_modules/inferno/dist/index.d.ts"
-	]
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noEmit": true
+  }
 }
