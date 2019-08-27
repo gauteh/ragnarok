@@ -1,6 +1,6 @@
-import { Component, createRef } from 'inferno';
+import { Component } from 'inferno';
 
-import mousetrap from 'mousetrap';
+import * as mousetrap from 'mousetrap';
 import * as moment from 'moment';
 import * as cx from 'classnames';
 
@@ -10,7 +10,7 @@ import * as hypo from 'hypocloid';
 
 import { findDOMNode } from 'inferno-extras';
 import { renderToString } from 'inferno-server';
-import ClusterizeJS from 'clusterize.js';
+import * as ClusterizeJS from 'clusterize.js';
 
 import 'clusterize.js/clusterize.css';
 import './ThreadIndex.scss';
