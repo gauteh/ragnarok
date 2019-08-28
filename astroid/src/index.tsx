@@ -19,7 +19,7 @@ class Astroid extends Component<any, any> {
   public render() {
     return (
       <div>
-        <ThreadIndex query="gaute"/>
+        <ThreadIndex query="tag:inbox"/>
       </div>
     );
   }

@@ -1,4 +1,4 @@
-import { Component } from 'inferno';
+import { Component, createRef } from 'inferno';
 
 import mousetrap from 'mousetrap';
 import moment from 'moment';
@@ -12,6 +12,8 @@ import { findDOMNode } from 'inferno-extras';
 import { renderToString } from 'inferno-server';
 import ClusterizeJS from 'clusterize.js';
 
+import { ThreadSearch } from './ThreadSearch';
+
 import 'clusterize.js/clusterize.css';
 import './ThreadIndex.scss';
 
@@ -20,14 +22,18 @@ interface Props {
 }
 
 interface State {
+  query: string,
   threads: Thread[];
   selected: string;
+  searchVisible: boolean;
 }
 
 export class ThreadIndex extends Component<Props, State> {
   public state = {
+    query: "",
     threads: new Array<Thread>(),
-    selected: undefined
+    selected: undefined,
+    searchVisible: false
   };
 
   clusterize = null;
@@ -35,8 +41,13 @@ export class ThreadIndex extends Component<Props, State> {
   contentElem = null;
   rowHeight = 27; // px
 
+  threadSearch = null;
+
   constructor(props, context) {
     super(props, context);
+
+    this.threadSearch = createRef();
+    this.state.query = props.query;
 
     mousetrap.bind ('j', () => {
       const idx = this.state.threads
@@ -68,7 +79,17 @@ export class ThreadIndex extends Component<Props, State> {
       this.selectThread (this.state.threads[this.state.threads.length-1].id, this.state.threads.length-1)
     });
 
-    this.loadThreads();
+    mousetrap.bind ('/', () => {
+      this.setState ({ searchVisible: true });
+      setTimeout (() => {
+        /* we use setTimeout to avoid the keybinding to
+         * be entered into the field. */
+        this.threadSearch.current.focus ();
+      });
+    });
+
+    this.queryChanged = this.queryChanged.bind (this);
+    this.hideSearch = this.hideSearch.bind (this);
   }
 
   private unselectThread (id: string) {
@@ -116,6 +137,9 @@ export class ThreadIndex extends Component<Props, State> {
           }
         }}
     });
+
+    this.setState ({query: this.props.query});
+    this.loadThreads(this.props.query);
   }
 
   componentWillUnmount() {
@@ -125,21 +149,35 @@ export class ThreadIndex extends Component<Props, State> {
     }
   }
 
-  public loadThreads = () =>
+  public queryChanged (q: string): void {
+    if (q !== this.state.query) {
+      this.setState ({query: q});
+      this.loadThreads (q);
+    }
+  }
+
+  public hideSearch (): void {
+    this.setState ({ searchVisible: false });
+  }
+
+  public loadThreads = (query: string) =>
   {
-    console.log ('loading..:', this.props.query);
+    console.log ('loading..:', query);
     this.state.threads.length = 0;
+    this.setState ({threads: [], selected: undefined});
+    this.clusterize.clear ();
+
     const start = new Date ();
-    hypo.getThreads (this.props.query).pipe (
+    hypo.getThreads (query).pipe (
       tap ((e: Thread[]) => {
         this.state.threads.push (...e);
         this.setState ({
           threads: this.state.threads
         });
 
-        if (this.state.threads.length % 1000 === 0) {
+        // if (this.state.threads.length % 1000 === 0) {
           console.log ("threads:", this.state.threads.length);
-        }
+        // }
 
         if (this.state.selected === undefined) {
           this.setState ({
@@ -194,17 +232,26 @@ export class ThreadIndex extends Component<Props, State> {
 
   public render() {
     return (
+      <div>
+        <ThreadSearch
+          ref={this.threadSearch}
+          visible={ this.state.searchVisible }
+          query={ this.state.query }
+          queryChanged={ this.queryChanged }
+          escaped={ this.hideSearch }/>
+
         <div
           ref={node => {
             this.scrollElem = node;
           }}
             class="clusterize-scroll">
-          <table class="ti table table-dark table-borderless table-sm">
-            <tbody ref={node => { this.contentElem = node }}
-            class="clusterize-content">
+            <table class="ti table table-dark table-borderless table-sm">
+              <tbody ref={node => { this.contentElem = node }}
+              class="clusterize-content">
             </tbody>
           </table>
         </div>
+      </div>
     );
   }
 }
