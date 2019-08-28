@@ -9,8 +9,8 @@ import { Thread } from 'models';
 export function getThreads (query: string): Observable<Thread[]>
 {
   return stream (api + '/threads/' + query)
-  .pipe (
-    bufferCount (5000)
-  );
+    .pipe (
+      bufferCount (5000)
+    );
 }
 

@@ -1,8 +1,8 @@
 import { Component } from 'inferno';
 
-import * as mousetrap from 'mousetrap';
-import * as moment from 'moment';
-import * as cx from 'classnames';
+import mousetrap from 'mousetrap';
+import moment from 'moment';
+import cx from 'classnames';
 
 import { finalize, tap } from 'rxjs/operators';
 import { Thread } from 'models';
