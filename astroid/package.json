@@ -23,6 +23,7 @@
     "@babel/types": "^7.5.5",
     "@types/mousetrap": "^1.6.3",
     "bootstrap": "^4.3.1",
+    "can-ndjson-stream": "^1.0.1",
     "classcat": "^4.0.2",
     "classnames": "^2.2.6",
     "clusterize.js": "^0.18.1",
@@ -32,7 +33,6 @@
     "jquery": "^3.4.1",
     "moment": "^2.24.0",
     "mousetrap": "^1.6.3",
-    "ndjson-rxjs": "^1.0.0",
     "react": "^16.9.0",
     "rxjs": "^6.5.2"
   },
