@@ -216,6 +216,8 @@ export class ThreadIndex extends Component<Props, State> {
       return (<span>{moment (new Date(date * 1000)).fromNow ()}</span>);
     };
 
+    const ignoreTags = new Set (['unread', 'important']);
+
     return (
       <tr id={"t" + thread.id}
       key={thread.id}
@@ -238,13 +240,15 @@ export class ThreadIndex extends Component<Props, State> {
               </span>
             </td>
             <td class="ti-tags">
-              { thread.tags.map ((tag) => (
-                <span>
-                  <span class="badge badge-pill badge-light">
-                    { tag }
+              { thread.tags
+                .filter (tag => !ignoreTags.has (tag))
+                .map (tag => (
+                  <span>
+                    <span class="badge badge-pill badge-light">
+                      { tag }
+                    </span>
+                    &nbsp;
                   </span>
-                  &nbsp;
-                </span>
                 ))
               }
             </td>
