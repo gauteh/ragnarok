@@ -58,12 +58,17 @@ impl Iterator for Threads {
 }
 
 pub fn threads(req: HttpRequest) -> HttpResponse {
-  let query: String = req.match_info().get ("query").unwrap_or ("*").parse ().unwrap ();
+  let route = "/threads";
+  let mut query = &req.path()[route.len()..];
+  if query.starts_with ("/") {
+    query = &query[1..];
+  }
+
   HttpResponse::Ok ()
     .content_type ("application/x-ndjson")
     .streaming (
       iter_ok::<_, ()> (
-        Threads::new (query)
+        Threads::new (String::from(query))
         .map (|th|
           Bytes::from(
             serde_json::ser::to_string (&th).unwrap()))

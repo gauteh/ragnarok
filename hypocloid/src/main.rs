@@ -30,8 +30,11 @@ fn main() -> std::io::Result<()> {
         .max_age(3600),
       )
       .wrap (middleware::Logger::default())
-      .route("/threads", web::get().to_async (threads::threads))
-      .route("/threads/{query}", web::get().to_async (threads::threads))
+      .service (
+        web::resource ("/threads*")
+        .route (
+          web::get().to_async (threads::threads))
+        )
   })
   .bind("127.0.0.1:8088")?
     .run()
