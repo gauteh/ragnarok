@@ -30,3 +30,7 @@ replaced by something custom or more lightweight at a later time.
 
 1. `$ npm start`
 
+## Running in NW.js
+
+1. `$ npm run nw`
+

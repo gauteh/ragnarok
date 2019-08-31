@@ -17,6 +17,18 @@ const createWindow = () => {
   window.on("closed", () => {
     window = null;
   });
+
+  const webContents = window.webContents;
+
+  const handleRedirect = (e, url) => {
+    if(url != webContents.getURL()) {
+      e.preventDefault()
+      require('electron').shell.openExternal(url)
+    }
+  }
+
+  webContents.on('will-navigate', handleRedirect)
+  webContents.on('new-window', handleRedirect)
 };
 
 app.on("ready", createWindow);

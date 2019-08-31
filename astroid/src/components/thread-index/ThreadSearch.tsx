@@ -66,6 +66,12 @@ export class ThreadSearch extends Component<Props, State> {
             onInput={ this.handleChange }
             onKeyDown={ this.handleKey }
           />
+
+          <div class="input-group-append">
+            <span class="input-group-text text-primary bg-dark">
+              <a href="https://notmuchmail.org/manpages/notmuch-search-terms-7/" target="about:blank">?</a>
+            </span>
+          </div>
         </div>
       </div>
     );

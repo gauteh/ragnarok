@@ -2,16 +2,17 @@
   "name": "astroid",
   "version": "0.1.0",
   "description": "Astroid",
-  "main": "main.js",
+  "main": "dist/index.html",
   "scripts": {
-    "test": "jest",
+    "test": "tsc && jest",
     "build:inferno": "tsc && webpack --mode development --config webpack.inferno.config.js",
     "build": "webpack --mode development",
     "check": "tsc && npm run lint",
     "lint": "tslint src/*.ts{,x} src/**/*.ts{,x}",
     "serve": "tsc && webpack-dev-server --inline --config webpack.inferno.config.js",
     "prestart": "npm run build",
-    "start": "electron ./dist/main.js"
+    "start": "electron ./dist/main.js",
+    "nw": "npm run prestart && nw ."
   },
   "keywords": [
     "inferno",
@@ -33,6 +34,7 @@
     "jquery": "^3.4.1",
     "moment": "^2.24.0",
     "mousetrap": "^1.6.3",
+    "nw": "^0.40.2",
     "react": "^16.9.0",
     "rxjs": "^6.5.2"
   },
