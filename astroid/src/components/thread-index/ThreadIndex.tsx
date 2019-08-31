@@ -237,6 +237,17 @@ export class ThreadIndex extends Component<Props, State> {
                 {thread.total_messages}
               </span>
             </td>
+            <td class="ti-tags">
+              { thread.tags.map ((tag) => (
+                <span>
+                  <span class="badge badge-pill badge-light">
+                    { tag }
+                  </span>
+                  &nbsp;
+                </span>
+                ))
+              }
+            </td>
             <td class="ti-subject">
               {thread.subject}
             </td>
