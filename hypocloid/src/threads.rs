@@ -21,9 +21,9 @@ pub struct Thread {
 pub struct Threads (notmuch::Threads<'static, 'static>);
 
 impl Threads {
-  pub fn new (q: String) -> Threads {
+  pub fn new (db: String, q: String) -> Threads {
     let db = Arc::new (notmuch::Database::open (
-        &String::from("/Users/gauteh/.mail"),
+        &db,
         notmuch::DatabaseMode::ReadOnly).unwrap());
 
     debug! ("threads query: {}..", q);
@@ -57,18 +57,21 @@ impl Iterator for Threads {
   }
 }
 
-pub fn threads(req: HttpRequest) -> HttpResponse {
+pub fn threads(state: web::Data<HypoState>, req: HttpRequest) -> HttpResponse {
   let route = "/threads";
   let mut query = &req.path()[route.len()..];
   if query.starts_with ("/") {
     query = &query[1..];
   }
 
+  let nmdb = state.notmuch_config
+    .get_from (Some("database"), "path").unwrap();
+
   HttpResponse::Ok ()
     .content_type ("application/x-ndjson")
     .streaming (
       iter_ok::<_, ()> (
-        Threads::new (String::from(query))
+        Threads::new (String::from(nmdb), String::from(query))
         .map (|th|
           Bytes::from(
             serde_json::ser::to_string (&th).unwrap()))

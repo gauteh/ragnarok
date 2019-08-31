@@ -40,7 +40,8 @@ mod test_notmuch {
     use super::super::*;
     use threads::*;
 
-    let threads = Threads::new (String::from ("*"));
+    let mail_path = "/Users/gauteh/.mail";
+    let threads = Threads::new (String::from(mail_path), String::from ("*"));
 
     let mut i = 0;
     debug! ("counting threads..");
