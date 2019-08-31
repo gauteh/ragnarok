@@ -56,10 +56,10 @@ export class ThreadSearch extends Component<Props, State> {
       <div class={cx ({'hidden': !this.props.visible})}>
         <div class="input-group">
           <div class="input-group-prepend">
-            <span class="input-group-text">/</span>
+            <span class="input-group-text text-primary bg-dark">&gt;</span>
           </div>
 
-          <input class="form-control"
+          <input class="form-control bg-dark text-light"
             ref={this.input}
             type="text"
             value={ this.state.query }

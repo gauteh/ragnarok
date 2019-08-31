@@ -54,7 +54,7 @@ export class ThreadIndex extends Component<Props, State> {
         .findIndex ((t) => t.id === this.state.selected);
 
       if (idx >= 0 && idx < this.state.threads.length - 1) {
-        this.unselectThread (this.state.selected);
+        this.unselectThread (this.state.selected, idx);
         this.selectThread (this.state.threads[idx + 1].id, idx+1);
       }
     });
@@ -64,18 +64,22 @@ export class ThreadIndex extends Component<Props, State> {
         .findIndex ((t) => t.id === this.state.selected);
 
       if (idx > 0) {
-        this.unselectThread (this.state.selected);
+        this.unselectThread (this.state.selected, idx);
         this.selectThread (this.state.threads[idx - 1].id, idx-1);
       }
     });
 
     mousetrap.bind ('1', () => {
-      this.unselectThread (this.state.selected);
+      const idx = this.state.threads
+        .findIndex ((t) => t.id === this.state.selected);
+      this.unselectThread (this.state.selected, idx);
       this.selectThread (this.state.threads[0].id, 0)
     });
 
     mousetrap.bind ('0', () => {
-      this.unselectThread (this.state.selected);
+      const idx = this.state.threads
+        .findIndex ((t) => t.id === this.state.selected);
+      this.unselectThread (this.state.selected, idx);
       this.selectThread (this.state.threads[this.state.threads.length-1].id, this.state.threads.length-1)
     });
 
@@ -92,25 +96,36 @@ export class ThreadIndex extends Component<Props, State> {
     this.hideSearch = this.hideSearch.bind (this);
   }
 
-  private unselectThread (id: string) {
+  private unselectThread (id: string, idx: number) {
     /* XXX: if we somehow managed to scroll out of the
      * current cluster without unselecting the thread
      * this row will still have the selected class. */
+
     const el = document.getElementById ("t" + id);
-    el.classList.remove ("bg-primary");
+    const t = this.state.threads[idx];
+    el.outerHTML = renderToString (
+      this.Row ({thread: t, selected: false}));
+
     this.setState ({ selected: undefined });
   }
 
   private selectThread (id: string, idx: number) {
     this.setState ({ selected: id });
+
+    const t = this.state.threads[idx];
+
     const el = document.getElementById ("t" + id);
     if (el !== null) {
-      el.classList.add ("bg-primary");
-      el.scrollIntoView ({behavior: 'smooth', block: 'center'});
+      el.scrollIntoView ({behavior: 'auto', block: 'center'});
+
+      el.outerHTML = renderToString (
+        this.Row ({thread: t, selected: true}));
     } else {
       /* the row is not present in the DOM, scroll and let clusterize callback
        * fix the selected state. */
-      this.scrollElem.scroll ({ top: idx * this.rowHeight, behavior: 'auto' });
+      this.scrollElem.scroll ({
+        top: idx * this.rowHeight,
+        behavior: 'auto' });
     }
   }
 
@@ -130,9 +145,13 @@ export class ThreadIndex extends Component<Props, State> {
           /* the element may not be present in DOM when user initiated scroll
            * so we have to re-select it */
           if (this.state.selected !== undefined) {
+
             const el = document.getElementById ("t" + this.state.selected);
+
             if (el !== null) {
-              el.classList.add ("bg-primary");
+              const t = this.state.threads.find(t => t.id === this.state.selected);
+              el.outerHTML = renderToString (
+                this.Row ({thread: t, selected: true}));
             }
           }
         }}
@@ -171,19 +190,16 @@ export class ThreadIndex extends Component<Props, State> {
     hypo.getThreads (query).pipe (
       tap ((e: Thread[]) => {
         this.state.threads.push (...e);
+
+        const selected = this.state.selected === undefined ?
+          e[0].id : this.state.selected;
+
         this.setState ({
-          threads: this.state.threads
+          threads: this.state.threads,
+          selected: selected
         });
 
-        // if (this.state.threads.length % 1000 === 0) {
-          console.log ("threads:", this.state.threads.length);
-        // }
-
-        if (this.state.selected === undefined) {
-          this.setState ({
-            selected: e[0].id
-          });
-        }
+        console.log ("threads:", this.state.threads.length);
 
         const rows = this.Rows({threads: e, selected: this.state.selected}).map (renderToString);
         this.clusterize.append (rows);
@@ -192,8 +208,8 @@ export class ThreadIndex extends Component<Props, State> {
     ).subscribe ();
   }
 
-  public Rows (props) {
-    const threads = props.threads;
+  public Row (props) {
+    const thread = props.thread;
     const selected = props.selected;
 
     const formatDate = (date: number): JSX.Element => {
@@ -201,12 +217,11 @@ export class ThreadIndex extends Component<Props, State> {
     };
 
     return (
-      threads.map ((thread) => (
-        <tr id={"t" + thread.id}
-          key={thread.id}
-          class={cx ({
-              'bg-primary': thread.id === selected,
-              'ti-unread': thread.unread })}>
+      <tr id={"t" + thread.id}
+      key={thread.id}
+      class={cx ({
+        'bg-primary': selected,
+        'text-muted': !selected && !thread.unread })}>
           <td class="ti-date">
             {formatDate (thread.newest_date)}
           </td>
@@ -218,15 +233,26 @@ export class ThreadIndex extends Component<Props, State> {
               cx ('badge', {
                 'badge-primary': thread.unread,
                 'badge-secondary': !thread.unread
-                })}>
-              {thread.total_messages}
-            </span>
-          </td>
-          <td class="ti-subject">
-            {thread.subject}
-          </td>
-        </tr>
-      ))
+              })}>
+                {thread.total_messages}
+              </span>
+            </td>
+            <td class="ti-subject">
+              {thread.subject}
+            </td>
+          </tr>
+    );
+  }
+
+  public Rows (props) {
+    const threads = props.threads;
+    const selected = props.selected;
+
+    return (
+      threads.map ((thread) =>
+        this.Row({
+          thread: thread,
+          selected: selected === thread.id}))
     );
   }
 

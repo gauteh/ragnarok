@@ -10,25 +10,22 @@ import { Thread } from 'models';
 export function getThreads (query: string): Observable<Thread[]>
 {
    const stream = Observable.create ((observer) => {
-    fetch (api + '/threads/' + query)
-    .then ((response) => ndjson (response.body))
-    .then ((stream) => {
-      const reader = stream.getReader ();
+     fetch (api + '/threads/' + query)
+       .then ((response) => ndjson (response.body))
+       .then ((stream) => {
+         const reader = stream.getReader ();
 
-      const read = ({done, value}) => {
-        if (value !== undefined) {
-          observer.next (value);
-        }
+         const read = ({done, value}) => {
+           if (!done) {
+             observer.next (value);
+             reader.read().then (read);
+           } else {
+             observer.complete ();
+           }
+         };
 
-        if (!done) {
-          reader.read().then (read);
-        } else {
-          observer.complete ();
-        }
-      };
-
-      reader.read().then (read);
-    });
+         reader.read().then (read);
+       });
   });
 
   const first = stream.pipe (filter ((_, i) => i < 150), bufferCount (10));
