@@ -18,6 +18,7 @@ use ini::Ini;
 /* internal modules */
 mod test;
 pub mod threads;
+pub mod messages;
 
 pub struct HypoState {
   notmuch_config: Ini
@@ -55,6 +56,11 @@ fn main() -> std::io::Result<()> {
         web::resource ("/threads*")
         .route (
           web::get().to_async (threads::threads))
+        )
+      .service (
+        web::resource ("/messages*")
+        .route (
+          web::get().to_async (messages::messages))
         )
   })
   .bind("127.0.0.1:8088")?
