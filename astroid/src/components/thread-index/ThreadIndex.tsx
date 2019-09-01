@@ -37,6 +37,7 @@ export class ThreadIndex extends Component<Props, State> {
   };
 
   clusterize = null;
+  clusterrows = [];
   scrollElem = null;
   contentElem = null;
   rowHeight = 27; // px
@@ -79,7 +80,9 @@ export class ThreadIndex extends Component<Props, State> {
     mousetrap.bind ('0', () => {
       const idx = this.state.threads
         .findIndex ((t) => t.id === this.state.selected);
+
       this.unselectThread (this.state.selected, idx);
+
       this.selectThread (this.state.threads[this.state.threads.length-1].id, this.state.threads.length-1)
     });
 
@@ -100,13 +103,15 @@ export class ThreadIndex extends Component<Props, State> {
     /* XXX: if we somehow managed to scroll out of the
      * current cluster without unselecting the thread
      * this row will still have the selected class. */
+    this.setState ({ selected: undefined });
 
     const el = document.getElementById ("t" + id);
-    const t = this.state.threads[idx];
-    el.outerHTML = renderToString (
-      this.Row ({thread: t, selected: false}));
-
-    this.setState ({ selected: undefined });
+    if (el !== null) {
+      const t = this.state.threads[idx];
+      el.outerHTML = renderToString (
+        this.Row ({thread: t, selected: false}));
+      this.clusterrows[idx] = el.outerHTML;
+    }
   }
 
   private selectThread (id: string, idx: number) {
@@ -114,12 +119,25 @@ export class ThreadIndex extends Component<Props, State> {
 
     const t = this.state.threads[idx];
 
+    const newr = renderToString (
+      this.Row ({thread: t, selected: true}));
+    this.clusterrows[idx] = newr;
+
+    /* it is too slow to call clusterize.update (...) with the new rows. we
+     * keep this array updated as well so that we can easily remove or
+     * re-render on other changes (tags, deleted) which we can allow to go
+     * slower (at least in the beginning).
+     *
+     * ideally we would be able to use the internal array from clusterize so that we
+     * don't have multiple arrays with all the threads. also note that stroing
+     * an array of DOM nodes would take about 5x more memory than storing the
+     * strings.
+     * */
+
     const el = document.getElementById ("t" + id);
     if (el !== null) {
       el.scrollIntoView ({behavior: 'auto', block: 'center'});
-
-      el.outerHTML = renderToString (
-        this.Row ({thread: t, selected: true}));
+      el.outerHTML = newr;
     } else {
       /* the row is not present in the DOM, scroll and let clusterize callback
        * fix the selected state. */
@@ -133,10 +151,7 @@ export class ThreadIndex extends Component<Props, State> {
     const scrollElem = findDOMNode(this.scrollElem);
     const contentElem = findDOMNode(this.contentElem);
 
-    const rows = this.Rows({threads: this.state.threads, selected: this.state.selected}).map (renderToString);
-
     this.clusterize = new ClusterizeJS({
-      rows: rows,
       scrollElem: scrollElem,
       contentElem: contentElem,
       show_no_data_row: false,
@@ -145,7 +160,6 @@ export class ThreadIndex extends Component<Props, State> {
           /* the element may not be present in DOM when user initiated scroll
            * so we have to re-select it */
           if (this.state.selected !== undefined) {
-
             const el = document.getElementById ("t" + this.state.selected);
 
             if (el !== null) {
@@ -184,7 +198,9 @@ export class ThreadIndex extends Component<Props, State> {
     console.log ('loading..:', query);
     this.state.threads.length = 0;
     this.setState ({threads: [], selected: undefined});
+
     this.clusterize.clear ();
+    this.clusterrows = [];
 
     const start = new Date ();
     hypo.getThreads (query).pipe (
@@ -199,10 +215,15 @@ export class ThreadIndex extends Component<Props, State> {
           selected: selected
         });
 
-        console.log ("threads:", this.state.threads.length);
+        const rows = this.Rows({
+          threads: e,
+          selected: this.state.selected})
+          .map (renderToString);
 
-        const rows = this.Rows({threads: e, selected: this.state.selected}).map (renderToString);
+        this.clusterrows.push (...rows);
         this.clusterize.append (rows);
+
+        console.log ("threads:", this.state.threads.length);
       }),
       finalize (() => console.log ('done: ', this.state.threads.length, 'in', (new Date().getTime() - start.getTime()) / 1000, ' seconds.'))
     ).subscribe ();
@@ -267,7 +288,7 @@ export class ThreadIndex extends Component<Props, State> {
       threads.map ((thread) =>
         this.Row({
           thread: thread,
-          selected: selected === thread.id}))
+          selected: false}))
     );
   }
 
