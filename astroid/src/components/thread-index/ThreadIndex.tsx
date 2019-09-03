@@ -13,11 +13,13 @@ import { renderToString } from 'inferno-server';
 import ClusterizeJS from 'clusterize.js';
 
 import { ThreadSearch } from './ThreadSearch';
+import { ThreadView } from '../thread-view/ThreadView';
 
 import 'clusterize.js/clusterize.css';
 import './ThreadIndex.scss';
 
 interface Props {
+  add: (c: JSX.Element) => void;
   query: string;
 }
 
@@ -84,6 +86,10 @@ export class ThreadIndex extends Component<Props, State> {
       this.unselectThread (this.state.selected, idx);
 
       this.selectThread (this.state.threads[this.state.threads.length-1].id, this.state.threads.length-1)
+    });
+
+    mousetrap.bind ('enter', () => {
+      this.props.add (( <ThreadView thread={"thread:" + this.state.selected} /> ));
     });
 
     mousetrap.bind ('/', () => {
