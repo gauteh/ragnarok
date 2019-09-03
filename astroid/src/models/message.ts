@@ -1,4 +1,5 @@
 export class Message {
-  subject: string
+  subject: string;
+  headers: Map<string, any>;
 }
 

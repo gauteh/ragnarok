@@ -4,7 +4,7 @@ import mousetrap from 'mousetrap';
 import moment from 'moment';
 import cx from 'classnames';
 
-import { finalize, tap } from 'rxjs/operators';
+import { switchMap, tap } from 'rxjs/operators';
 import { Thread, Message } from 'models';
 import * as hypo from 'hypocloid';
 
@@ -16,26 +16,26 @@ interface Props {
 
 interface State {
   thread: Thread;
-  messages: Message[];
+  messages: Message[][][];
 }
 
 export class ThreadView extends Component<Props, State> {
   public state = {
     thread: undefined,
-    messages: new Array<Message>()
+    messages: new Array<Message[][]>()
   };
 
   constructor(props, context) {
     super(props, context);
 
-    console.log ("TV:", this.state, this.props);
-
-    hypo.getMessages (this.props.thread).subscribe (
-        (m) => this.setState ({ messages: m })
-      );
-
-    hypo.getThreads (this.props.thread).subscribe (
-      (t) => this.setState ({ thread: t[0] }));
+    hypo.getThreads (this.props.thread).pipe (
+      switchMap (t => hypo.getMessages (this.props.thread)
+        .pipe (tap (m =>
+          this.setState ({
+            thread: t[0],
+            messages: m })
+        )))
+    ).subscribe ();
   }
 
   public render() {
