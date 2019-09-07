@@ -40,13 +40,21 @@ export class ThreadView extends Component<Props, State> {
     ).subscribe ();
   }
 
+  public flatThreadNode = (t: ThreadNode): ThreadNode[] =>
+  {
+    return [t].concat (...t[1].map(this.flatThreadNode));
+  }
+
   public render() {
     return (
       <div>
         <div class="messages">
-          { this.state.messages.map (
-              m => <MessageView message={m} />
-            )
+          { this.state.messages
+            .map (
+              tn => this.flatThreadNode(tn)
+              .map (
+                t => <MessageView message={t} />
+              ))
           }
         </div>
       </div>
