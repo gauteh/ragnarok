@@ -38,11 +38,8 @@ class Astroid extends Component<any, any> {
   }
 
   public updateVisible () {
-    console.log ("active:", this.active);
-
     for (let i = 0; i < this.buffers.current.children.length; i++) {
       const c = this.buffers.current.children[i];
-        console.log (c, i);
         if (i === this.active) {
           c.classList.remove ("hidden");
         } else {
