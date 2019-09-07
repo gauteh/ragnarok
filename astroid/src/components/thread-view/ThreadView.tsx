@@ -48,7 +48,7 @@ export class ThreadView extends Component<Props, State> {
   public render() {
     return (
       <div>
-        <div class="messages ml-auto mr-auto mt-2">
+        <div class="messages ml-auto mr-auto mt-0">
           { this.state.messages
             .map (
               tn => this.flatThreadNode(tn)

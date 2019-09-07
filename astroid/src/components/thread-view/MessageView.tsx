@@ -27,7 +27,7 @@ export class MessageView extends Component<Props, State> {
               </h5>
             </div>
             <div class="col col-lg-auto">
-              <h5 class="card-title mb-2 text-right">
+              <h5 class="card-title mb-2 text-right text-secondary">
                 { m.date_relative }
               </h5>
             </div>

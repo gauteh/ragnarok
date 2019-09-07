@@ -17,6 +17,8 @@ pub fn messages(req: HttpRequest) -> HttpResponse
   let messages = Command::new ("notmuch")
     .arg ("show")
     .arg ("--format=json")
+    .arg ("--exclude=false")
+    .arg ("--include-html")
     .arg (query)
     .output ().unwrap();
 
