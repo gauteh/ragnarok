@@ -2,6 +2,8 @@ export class Message {
   subject: string;
   headers: Map<string, any>;
   date_relative: string;
+  tags: string[];
+  body: any;
 }
 
 /* ThreadNode is sort of an tuple with the message and an array
