@@ -1,11 +1,13 @@
 import { api } from './api';
 
 import { from, Observable } from 'rxjs';
-import { Message } from 'models';
+import { MessageThread } from 'models';
 
-export function getMessages (query: string): Observable<Message[][][]>
+export function getMessages (query: string): Observable<any>
 {
   return from (fetch (api + '/messages/' + query)
-    .then ((response) => response.json () as Promise<Message[][][]>));
+               .then ((response) => {
+                 return response.json () as Promise<any>;
+               }));
 }
 

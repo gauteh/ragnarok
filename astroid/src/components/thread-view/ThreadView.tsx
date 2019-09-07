@@ -5,8 +5,10 @@ import moment from 'moment';
 import cx from 'classnames';
 
 import { switchMap, tap } from 'rxjs/operators';
-import { Thread, Message } from 'models';
+import { Thread, ThreadNode, MessageThread } from 'models';
 import * as hypo from 'hypocloid';
+
+import { MessageView } from './MessageView';
 
 import './ThreadView.scss';
 
@@ -16,13 +18,13 @@ interface Props {
 
 interface State {
   thread: Thread;
-  messages: Message[][][];
+  messages: MessageThread;
 }
 
 export class ThreadView extends Component<Props, State> {
   public state = {
     thread: undefined,
-    messages: new Array<Message[][]>()
+    messages: []
   };
 
   constructor(props, context) {
@@ -33,25 +35,19 @@ export class ThreadView extends Component<Props, State> {
         .pipe (tap (m =>
           this.setState ({
             thread: t[0],
-            messages: m })
+            messages: m[0] }) // we only anticipate one thread
         )))
     ).subscribe ();
   }
 
   public render() {
-    console.log (this.state.messages);
-
     return (
       <div>
-        <div class="card messages">
-          { this.state.messages.length > 0 && this.state.messages[0].map (m =>
-            <div class="card">
-              <h5 class="card-title">
-                { m[0].headers['Subject'] }
-              </h5>
-            </div>)
+        <div class="messages">
+          { this.state.messages.map (
+              m => <MessageView message={m} />
+            )
           }
-
         </div>
       </div>
     );

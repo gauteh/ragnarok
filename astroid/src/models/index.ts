@@ -1,3 +1,3 @@
 export { Thread } from './thread';
-export { Message } from './message';
+export { Message, MessageThread, ThreadNode, ThreadSet } from './message';
 
