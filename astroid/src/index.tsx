@@ -25,6 +25,21 @@ class Astroid extends Component<any, any> {
       this.active = (this.active + 1) % (this.buffers.current.children.length);
       this.updateVisible ();
     });
+
+    mousetrap.bind ('B', () => {
+      this.active = (this.active - 1) % (this.buffers.current.children.length);
+      this.updateVisible ();
+    });
+
+    mousetrap.bind ('x', () => {
+      if (this.buffers.current.children.length > 1) {
+        this.buffers.current.removeChild(this.buffers.current.children[this.active]);
+        this.active = this.active % (this.buffers.current.children.length);
+        this.updateVisible ();
+      } else {
+        window.close ();
+      }
+    });
   }
 
   public addComponent = (c: JSX.Element) =>
@@ -34,6 +49,7 @@ class Astroid extends Component<any, any> {
     this.buffers.current.appendChild (target);
     render (c, target);
 
+    this.active = this.buffers.current.children.length - 1;
     this.updateVisible ();
   }
 
