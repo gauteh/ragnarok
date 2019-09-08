@@ -1,6 +1,8 @@
 import { Component } from 'inferno';
 import { ThreadNode, Message } from 'models';
 
+import { PartView } from './PartView';
+
 interface Props {
   message: ThreadNode
 }
@@ -16,7 +18,6 @@ export class MessageView extends Component<Props, State> {
 
   public render () {
     const m = this.props.message[0];
-    console.log (JSON.stringify(m.body));
     return (
       <div class="card border-dark rounded-0 mb-2">
         <div class="card-header">
@@ -49,7 +50,7 @@ export class MessageView extends Component<Props, State> {
           </h6>
         </div>
         <div class="card-body">
-          { JSON.stringify(m.body) }
+          { m.body.map (p => <PartView part={ p } />) }
         </div>
       </div>);
   }

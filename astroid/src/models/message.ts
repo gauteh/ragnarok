@@ -3,7 +3,27 @@ export class Message {
   headers: Map<string, any>;
   date_relative: string;
   tags: string[];
-  body: any;
+  body: Part[];
+}
+
+export class Part {
+  id: number | string;
+
+  encstatus?: any;
+  sigstatus?: any;
+
+  /* XXX: these are all props with - in between */
+  'content-type': string;
+  content_type: string;
+  content_disposition?: string;
+  content_id?: string;
+
+  content: string | Part[] | { headers: Map<string, any>, body: Part };
+
+  filename?: string;
+  content_charset?: string;
+  content_length?: number;
+  content_transfer_encoding?: string;
 }
 
 /* ThreadNode is sort of an tuple with the message and an array
