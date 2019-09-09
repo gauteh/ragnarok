@@ -10,6 +10,12 @@ const MultiPartAlternative = (mp) => (
   </div>
 );
 
+const MultiPartMixed = (mp) => (
+  <div>
+    { mp.content.map (p => <PartView part={p} />) }
+  </div>
+);
+
 export class PartView extends Component<{part: Part}, any> {
   public state = {};
 
@@ -30,10 +36,17 @@ export class PartView extends Component<{part: Part}, any> {
     const part = this.props.part;
 
     if (part['content-type'].startsWith ("multipart/alternative")) {
+
       return MultiPartAlternative (part);
-    } else if (part['content-type'].startsWith ("text/")) {
+
+    } else if (part['content-type'].startsWith ("multipart/mixed")) {
+
+      return MultiPartMixed (part);
+
+    } else if (part['content-type'].startsWith ("text/html")) {
+
       return (
-        <div class="iframecont"
+        <div
           dangerouslySetInnerHTML={{__html: sanitizeHtml (part.content,
           {
   allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img', 'style' ])
@@ -41,12 +54,27 @@ export class PartView extends Component<{part: Part}, any> {
           )}}>
         </div>
       );
+
+    } else if (part['content-type'].startsWith ("text/plain")) {
+
+      return (
+        <div>
+          <p>
+            <pre class="content">
+              { part.content }
+            </pre>
+          </p>
+        </div>
+      );
+
     } else {
+
       return (
         <div class="alert alert-primary">
           Cannot render type: { part['content-type'] }
         </div>
       );
+
     }
   }
 }
