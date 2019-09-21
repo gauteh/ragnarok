@@ -37,8 +37,11 @@ class Astroid extends Component<any, any> {
 
     mousetrap.bind ('x', () => {
       if (this.state.buffers.length > 1) {
+
+        this.state.buffers.splice (this.state.active, 1);
+
         this.setState ({
-          buffers: this.state.buffers.splice (this.state.active, 1),
+          buffers: this.state.buffers,
           active: this.state.active % this.state.buffers.length
         });
       } else {
@@ -48,16 +51,14 @@ class Astroid extends Component<any, any> {
 
     this.state.buffers =[
       <ThreadIndex query="tag:inbox"
-        buffer={this.state.buffers.length}
-        active={this.state.active}
+        active={true}
         add={this.addComponent} />] ;
   }
 
   public addComponent = (c: VNode) =>
   {
     const v = cloneVNode (c, {
-      'buffer': this.state.buffers.length,
-      'active': this.state.active,
+      'active': true,
       'add': this.addComponent });
 
     this.state.buffers.push (v);
@@ -68,12 +69,12 @@ class Astroid extends Component<any, any> {
   }
 
   public render() {
-    this.state.buffers.forEach (c =>
-      c.props.active = this.state.active);
+    this.state.buffers.forEach ((c, i) =>
+      c.props.active = (this.state.active === i));
 
     return (
       <div>
-        { this.state.buffers[this.state.active] }
+        { this.state.buffers }
       </div>
     );
   }

@@ -27,8 +27,7 @@ export class Keybindings {
 }
 
 export interface BufferProps {
-  buffer: number;
-  active: number;
+  active: boolean;
   add: (c: VNode) => void;
 }
 
@@ -38,7 +37,7 @@ export class BufferComponent<Props extends BufferProps, State>
   keys: Keybindings = new Keybindings ();
 
   public componentDidMount () {
-    if (this.props.active === this.props.buffer) {
+    if (this.props.active) {
       this.keys.bindkeys ();
     }
   }
@@ -49,7 +48,7 @@ export class BufferComponent<Props extends BufferProps, State>
 
   public componentDidUpdate (lastProps: Props, lastState, snapshot) {
     if (this.props.active !== lastProps.active) {
-      if (this.props.active === this.props.buffer) {
+      if (this.props.active) {
         this.keys.bindkeys ();
       } else {
         this.keys.unbindkeys ();

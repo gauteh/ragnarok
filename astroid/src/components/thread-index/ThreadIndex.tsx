@@ -92,7 +92,7 @@ export class ThreadIndex
 
     this.keys.add ('enter', () => {
       this.props.add ((
-        <ThreadView buffer={undefined} active={undefined} add={undefined} thread={"thread:" + this.state.selected} /> ) as VNode);
+        <ThreadView active={undefined} add={undefined} thread={"thread:" + this.state.selected} /> ) as VNode);
     });
 
     this.keys.add ('/', () => {
@@ -308,7 +308,7 @@ export class ThreadIndex
 
   public render() {
     return (
-      <div class={cx ({ 'd-none' : this.props.active !== this.props.buffer })}>
+      <div class={cx ({ 'd-none' : !this.props.active })}>
         <ThreadSearch
           ref={this.threadSearch}
           visible={ this.state.searchVisible }

@@ -50,7 +50,7 @@ export class ThreadView
 
   public render() {
     return (
-      <div class={cx ({ 'd-none' : this.props.active !== this.props.buffer })}>
+      <div class={cx ({ 'd-none' : !this.props.active })}>
         <div class="messages ml-auto mr-auto mt-0">
           { this.state.messages
             .map (

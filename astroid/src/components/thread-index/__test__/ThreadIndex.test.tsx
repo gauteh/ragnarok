@@ -15,6 +15,6 @@ it ('renders without crashing', () => {
     ]));
 
   const div = document.createElement ("div");
-  render (<ThreadIndex add={jest.fn()} buffer={0} active={0} query="tag:inbox"/>, div);
+  render (<ThreadIndex add={jest.fn()} active={true} query="tag:inbox"/>, div);
 });
 
