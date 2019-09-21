@@ -1,6 +1,5 @@
-import { Component, createRef } from 'inferno';
+import { Component, createRef, VNode } from 'inferno';
 
-import mousetrap from 'mousetrap';
 import moment from 'moment';
 import cx from 'classnames';
 
@@ -14,12 +13,12 @@ import ClusterizeJS from 'clusterize.js';
 
 import { ThreadSearch } from './ThreadSearch';
 import { ThreadView } from '../thread-view/ThreadView';
+import { BufferComponent, BufferProps, Keybindings } from '../buffer';
 
 import 'clusterize.js/clusterize.css';
 import './ThreadIndex.scss';
 
-interface Props {
-  add: (c: JSX.Element) => void;
+interface Props extends BufferProps {
   query: string;
 }
 
@@ -30,7 +29,10 @@ interface State {
   searchVisible: boolean;
 }
 
-export class ThreadIndex extends Component<Props, State> {
+export class ThreadIndex
+  extends BufferComponent<Props, State>
+{
+
   public state = {
     query: "",
     threads: new Array<Thread>(),
@@ -52,7 +54,7 @@ export class ThreadIndex extends Component<Props, State> {
     this.threadSearch = createRef();
     this.state.query = props.query;
 
-    mousetrap.bind ('j', () => {
+    this.keys.add ('j', () => {
       const idx = this.state.threads
         .findIndex ((t) => t.id === this.state.selected);
 
@@ -62,7 +64,7 @@ export class ThreadIndex extends Component<Props, State> {
       }
     });
 
-    mousetrap.bind ('k', () => {
+    this.keys.add ('k', () => {
       const idx = this.state.threads
         .findIndex ((t) => t.id === this.state.selected);
 
@@ -72,14 +74,14 @@ export class ThreadIndex extends Component<Props, State> {
       }
     });
 
-    mousetrap.bind ('1', () => {
+    this.keys.add ('1', () => {
       const idx = this.state.threads
         .findIndex ((t) => t.id === this.state.selected);
       this.unselectThread (this.state.selected, idx);
       this.selectThread (this.state.threads[0].id, 0)
     });
 
-    mousetrap.bind ('0', () => {
+    this.keys.add ('0', () => {
       const idx = this.state.threads
         .findIndex ((t) => t.id === this.state.selected);
 
@@ -88,11 +90,12 @@ export class ThreadIndex extends Component<Props, State> {
       this.selectThread (this.state.threads[this.state.threads.length-1].id, this.state.threads.length-1)
     });
 
-    mousetrap.bind ('enter', () => {
-      this.props.add (( <ThreadView thread={"thread:" + this.state.selected} /> ));
+    this.keys.add ('enter', () => {
+      this.props.add ((
+        <ThreadView buffer={undefined} active={undefined} add={undefined} thread={"thread:" + this.state.selected} /> ) as VNode);
     });
 
-    mousetrap.bind ('/', () => {
+    this.keys.add ('/', () => {
       this.setState ({ searchVisible: true });
       setTimeout (() => {
         /* we use setTimeout to avoid the keybinding to
@@ -114,6 +117,9 @@ export class ThreadIndex extends Component<Props, State> {
     const el = document.getElementById ("t" + id);
     if (el !== null) {
       const t = this.state.threads[idx];
+      /* XXX: see if rendertostring can be replaced with
+       * createVNode + render. or maybe just render JSX from
+       * this.Row to elem. */
       el.outerHTML = renderToString (
         this.Row ({thread: t, selected: false}));
       this.clusterrows[idx] = el.outerHTML;
@@ -154,6 +160,7 @@ export class ThreadIndex extends Component<Props, State> {
   }
 
   componentDidMount () {
+    super.componentDidMount ();
     const scrollElem = findDOMNode(this.scrollElem);
     const contentElem = findDOMNode(this.contentElem);
 
@@ -182,6 +189,7 @@ export class ThreadIndex extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    super.componentWillUnmount ();
     if (this.clusterize) {
       this.clusterize.destroy(true);
       this.clusterize = null;
@@ -300,7 +308,7 @@ export class ThreadIndex extends Component<Props, State> {
 
   public render() {
     return (
-      <div>
+      <div class={cx ({ 'd-none' : this.props.active !== this.props.buffer })}>
         <ThreadSearch
           ref={this.threadSearch}
           visible={ this.state.searchVisible }

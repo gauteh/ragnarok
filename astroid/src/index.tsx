@@ -1,4 +1,5 @@
-import { Component, render, createRef } from 'inferno';
+import { Component, render, createRef, VNode } from 'inferno';
+import { cloneVNode } from 'inferno-clone-vnode';
 import * as mousetrap from 'mousetrap';
 import { ThreadIndex } from './components/thread-index/ThreadIndex';
 import { ThreadView } from './components/thread-view/ThreadView';
@@ -8,68 +9,71 @@ import './main.css';
 
 const container = document.getElementById('app');
 
+interface State {
+  active: number;
+  buffers: VNode[];
+}
+
 class Astroid extends Component<any, any> {
-  buffers = null;
-  active = 0;
+  public state = {
+    active: 0,
+    buffers: []
+  };
 
   constructor(props, context) {
     super(props, context);
-
-    this.buffers = createRef ();
 
     mousetrap.bind ('q', () => {
       window.close (); // has no effect outside electron
     });
 
     mousetrap.bind ('b', () => {
-      this.active = (this.active + 1) % (this.buffers.current.children.length);
-      this.updateVisible ();
+      this.setState ({ active: (this.state.active + 1) % (this.state.buffers.length) });
     });
 
     mousetrap.bind ('B', () => {
-      this.active = (this.active - 1) % (this.buffers.current.children.length);
-      this.updateVisible ();
+      this.setState ({ active: (this.state.active - 1) % (this.state.buffers.length) });
     });
 
     mousetrap.bind ('x', () => {
-      if (this.buffers.current.children.length > 1) {
-        this.buffers.current.removeChild(this.buffers.current.children[this.active]);
-        this.active = this.active % (this.buffers.current.children.length);
-        this.updateVisible ();
+      if (this.state.buffers.length > 1) {
+        this.setState ({
+          buffers: this.state.buffers.splice (this.state.active, 1),
+          active: this.state.active % this.state.buffers.length
+        });
       } else {
         window.close ();
       }
     });
+
+    this.state.buffers =[
+      <ThreadIndex query="tag:inbox"
+        buffer={this.state.buffers.length}
+        active={this.state.active}
+        add={this.addComponent} />] ;
   }
 
-  public addComponent = (c: JSX.Element) =>
+  public addComponent = (c: VNode) =>
   {
-    const target = document.createElement ('div');
-    target.classList.add ("hidden");
-    this.buffers.current.appendChild (target);
-    render (c, target);
+    const v = cloneVNode (c, {
+      'buffer': this.state.buffers.length,
+      'active': this.state.active,
+      'add': this.addComponent });
 
-    this.active = this.buffers.current.children.length - 1;
-    this.updateVisible ();
-  }
+    this.state.buffers.push (v);
 
-  public updateVisible () {
-    for (let i = 0; i < this.buffers.current.children.length; i++) {
-      const c = this.buffers.current.children[i];
-        if (i === this.active) {
-          c.classList.remove ("hidden");
-        } else {
-          if (!c.classList.contains ("hidden")) {
-            c.classList.add ("hidden");
-          }
-        }
-    }
+    this.setState ({
+      buffers: this.state.buffers,
+      active: this.state.buffers.length - 1 });
   }
 
   public render() {
+    this.state.buffers.forEach (c =>
+      c.props.active = this.state.active);
+
     return (
-      <div ref={ this.buffers }>
-        <ThreadIndex add={this.addComponent} query="tag:inbox"/>
+      <div>
+        { this.state.buffers[this.state.active] }
       </div>
     );
   }

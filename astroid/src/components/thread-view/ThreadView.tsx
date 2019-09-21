@@ -8,11 +8,12 @@ import { switchMap, tap } from 'rxjs/operators';
 import { Thread, ThreadNode, MessageThread } from 'models';
 import * as hypo from 'hypocloid';
 
+import { BufferComponent, Keybindings, BufferProps } from '../buffer';
 import { MessageView } from './MessageView';
 
 import './ThreadView.scss';
 
-interface Props {
+interface Props extends BufferProps {
   thread: string
 }
 
@@ -21,7 +22,9 @@ interface State {
   messages: MessageThread;
 }
 
-export class ThreadView extends Component<Props, State> {
+export class ThreadView
+  extends BufferComponent<Props, State>
+{
   public state = {
     thread: undefined,
     messages: []
@@ -47,7 +50,7 @@ export class ThreadView extends Component<Props, State> {
 
   public render() {
     return (
-      <div>
+      <div class={cx ({ 'd-none' : this.props.active !== this.props.buffer })}>
         <div class="messages ml-auto mr-auto mt-0">
           { this.state.messages
             .map (

@@ -1,9 +1,10 @@
 #![feature(test)]
+#![feature(async_await)]
 
 extern crate futures;
 
 use actix_web::{web, http::header, middleware, App,
-HttpResponse, HttpServer, HttpRequest};
+                HttpResponse, HttpServer, HttpRequest};
 use actix_cors::Cors;
 
 #[macro_use]
