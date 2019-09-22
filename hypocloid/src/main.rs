@@ -11,19 +11,13 @@ use actix_cors::Cors;
 extern crate log;
 use env_logger;
 
-use std::env;
-use std::path;
-use dirs;
-use ini::Ini;
-
 /* internal modules */
 mod test;
-pub mod threads;
-pub mod messages;
+mod threads;
+mod messages;
+mod state;
 
-pub struct HypoState {
-  notmuch_config: Ini
-}
+use state::*;
 
 fn main() -> std::io::Result<()> {
   std::env::set_var("RUST_LOG", "hypocloid=debug,actix_web=info");
@@ -31,13 +25,7 @@ fn main() -> std::io::Result<()> {
 
   info! ("hello!");
 
-  /* find notmuch dir */
-  let nc = match env::var ("NOTMUCH_CONFIG") {
-    Ok (p) => path::PathBuf::from (p),
-    _      => { let mut d = dirs::home_dir().unwrap(); d.push (".notmuch-config"); d }
-  };
-
-  debug! ("notmuch config: {}", nc.to_str().unwrap());
+  debug! ("notmuch config: {}", notmuch_config().to_str().unwrap());
 
   HttpServer::new(move || {
     App::new()
@@ -50,9 +38,7 @@ fn main() -> std::io::Result<()> {
         .max_age(3600),
       )
       .wrap (middleware::Logger::default())
-      .data (HypoState {
-        notmuch_config: Ini::load_from_file (nc.clone()).unwrap()
-      })
+      .data (HypoState::new ())
       .service (
         web::resource ("/threads*")
         .route (

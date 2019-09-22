@@ -1,10 +1,11 @@
-use super::*;
+use actix_web::{web, HttpResponse, HttpRequest};
 use futures::stream::iter_ok;
 use serde_derive::Serialize;
 use std::sync::Arc;
 use itertools::Itertools;
 use bytes::Bytes;
 use notmuch;
+use crate::state::HypoState;
 
 #[derive(Serialize)]
 pub struct Thread {
