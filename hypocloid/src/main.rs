@@ -1,5 +1,4 @@
 #![feature(test)]
-#![feature(async_await)]
 
 extern crate futures;
 
