@@ -3,6 +3,7 @@ import { cloneVNode } from 'inferno-clone-vnode';
 import * as mousetrap from 'mousetrap';
 import { ThreadIndex } from './components/thread-index/ThreadIndex';
 import { ThreadView } from './components/thread-view/ThreadView';
+import { Composer } from './components/composer/Composer';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import './main.css';
@@ -35,14 +36,19 @@ class Astroid extends Component<any, any> {
       this.setState ({ active: (this.state.active - 1) % (this.state.buffers.length) });
     });
 
+    mousetrap.bind ('m', () => {
+      this.addComponent ((
+        <Composer active={undefined} add={undefined} />) as VNode);
+
+    });
+
     mousetrap.bind ('x', () => {
       if (this.state.buffers.length > 1) {
-
         this.state.buffers.splice (this.state.active, 1);
 
         this.setState ({
           buffers: this.state.buffers,
-          active: this.state.active % this.state.buffers.length
+          active: (this.state.active - 1) % this.state.buffers.length
         });
       } else {
         window.close ();
@@ -57,11 +63,9 @@ class Astroid extends Component<any, any> {
 
   public addComponent = (c: VNode) =>
   {
-    const v = cloneVNode (c, {
-      'active': true,
-      'add': this.addComponent });
+    c.props.add = this.addComponent;
 
-    this.state.buffers.push (v);
+    this.state.buffers.push (c);
 
     this.setState ({
       buffers: this.state.buffers,

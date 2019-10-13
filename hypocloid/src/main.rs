@@ -34,7 +34,7 @@ fn main() -> std::io::Result<()> {
         .allowed_methods(vec!["GET", "POST"])
         .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
         .allowed_header(header::CONTENT_TYPE)
-        .max_age(3600),
+        .max_age(3600)
       )
       .wrap (middleware::Logger::default())
       .data (HypoState::new ())
