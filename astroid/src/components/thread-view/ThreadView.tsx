@@ -30,6 +30,8 @@ export class ThreadView
     messages: []
   };
 
+  messagesElem = null;
+
   constructor(props, context) {
     super(props, context);
 
@@ -41,6 +43,12 @@ export class ThreadView
             messages: m[0] }) // we only anticipate one thread
         )))
     ).subscribe ();
+
+    this.keys.add ('j', () => {
+      this.messagesElem.scroll ({
+        current: 40,
+        behavior: 'auto'});
+    });
   }
 
   public flatThreadNode = (t: ThreadNode): ThreadNode[] =>
@@ -51,7 +59,9 @@ export class ThreadView
   public render() {
     return (
       <div class={cx ({ 'd-none' : !this.props.active })}>
-        <div class="messages ml-auto mr-auto mt-0">
+        <div
+          class="messages ml-auto mr-auto mt-0"
+          ref={ node => this.messagesElem = node }>
           { this.state.messages
             .map (
               tn => this.flatThreadNode(tn)
