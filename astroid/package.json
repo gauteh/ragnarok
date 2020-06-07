@@ -37,7 +37,7 @@
     "inferno-bootstrap": "^7.2.1",
     "inferno-clone-vnode": "^7.3.1",
     "inferno-server": "^7.3.1",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "moment": "^2.24.0",
     "mousetrap": "^1.6.3",
     "nw": "^0.40.2",
