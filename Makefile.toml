@@ -1,0 +1,88 @@
+
+# ---- BUILD ----
+
+[tasks.build]
+description = "Build gui and api"
+clear = true
+workspace = false
+dependencies = ["build_gui", "build_api", "build_app"]
+
+[tasks.build_release]
+extend = "build"
+description = "Build gui and api in release mode"
+dependencies = ["build_gui_release", "build_api_release", "build_app_release"]
+
+[tasks.build_gui]
+description = "Build gui"
+workspace = false
+install_crate = { crate_name = "wasm-pack", binary = "wasm-pack", test_arg = "-V" }
+command = "wasm-pack"
+args = ["build", "astroid", "--target", "web", "--out-name", "gui", "--dev"]
+
+[tasks.build_gui_release]
+extend = "build_gui"
+description = "Build gui in release mode"
+args = ["build", "astroid", "--target", "web", "--out-name", "gui", "--release"]
+
+[tasks.prepare_assets]
+description = "Copy assets for api"
+workspace = false
+dependencies = ["build_gui"]
+script_runner = "@duckscript"
+script = [
+'''
+mkdir astroid/assets
+
+cp astroid/pkg/astroid.js astroid/assets/astroid.js
+cp astroid/pkg/astroid_bg.wasm astroid/assets/astroid_bg.wasm
+cp astroid/index.html astroid/assets/index.html
+cp astroid/wing.min.css astroid/assets/wing.min.css
+cp README.md astroid/assets/README.md
+'''
+]
+
+[tasks.prepare_assets_release]
+extend = "prepare_assets"
+dependencies = ["build_gui_release"]
+
+[tasks.build_api]
+description = "Build api"
+workspace = false
+command = "cargo"
+args = ["build", "--package", "hypocloid"]
+dependencies = ["prepare_assets"]
+
+[tasks.build_api_release]
+extend = "build_api"
+description = "Build api in release mode"
+args = ["build", "--package", "hypocloid", "--release"]
+dependencies = ["prepare_assets_release"]
+
+[tasks.build_app]
+description = "Build app"
+workspace = false
+command = "cargo"
+args = ["build", "--package", "ragnarok"]
+
+[tasks.build_app_release]
+extend = "build_app"
+description = "Build app in release mode"
+args = ["build", "--package", "ragnarok", "--release"]
+
+# ---- START ----
+
+[tasks.start]
+description = "Build and start the api server on port 8080"
+workspace = false
+command = "cargo"
+args = ["run", "--package", "ragnarok"]
+dependencies = ["build"]
+
+[tasks.start_release]
+extend = "start"
+description = "Build and start the api server on port 8080"
+args = ["run", "--package", "ragnarok", "--release"]
+dependencies = ["build_release"]
+
+# ---- LINT ----
+# TODO
