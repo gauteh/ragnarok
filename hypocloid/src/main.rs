@@ -4,4 +4,3 @@ use hypocloid;
 async fn main() -> anyhow::Result<()> {
     hypocloid::main().await
 }
-

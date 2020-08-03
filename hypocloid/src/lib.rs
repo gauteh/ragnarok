@@ -8,10 +8,10 @@ use std::sync::Arc;
 use warp::Filter;
 
 /* internal modules */
+mod assets;
 mod messages;
 mod state;
 mod threads;
-mod assets;
 
 use state::*;
 
@@ -25,11 +25,13 @@ pub async fn main() -> anyhow::Result<()> {
     let threads = threads::filters::threads(state.clone());
     let messages = messages::filters::messages(state.clone());
 
-    let api = assets.or(messages).or(threads).with(warp::log("hypocloid::api"));
+    let api = assets
+        .or(messages)
+        .or(threads)
+        .with(warp::log("hypocloid::api"));
 
     info!("Listening on 127.0.0.1:8088");
     warp::serve(api).run(([127, 0, 0, 1], 8088)).await;
 
     Ok(())
 }
-

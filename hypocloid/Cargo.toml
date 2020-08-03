@@ -3,11 +3,6 @@ authors = ["Gaute Hope <eg@gaute.vetsj.com>"]
 edition = "2018"
 name = "hypocloid"
 version = "0.1.0"
-
-[lib]
-name = "hypocloid"
-path = "src/lib.rs"
-
 [[bin]]
 name = "hypocloid"
 path = "src/main.rs"
@@ -22,14 +17,21 @@ hyper = "*"
 itertools = "*"
 log = "*"
 notmuch = "*"
+rust-embed = "*"
 rust-ini = "*"
 serde = "*"
 serde_derive = "*"
 serde_json = "*"
 warp = "*"
+warp-embed = "*"
 
-proto = { path = "../proto" }
+[dependencies.proto]
+path = "../proto"
 
 [dependencies.tokio]
 features = ["full"]
 version = "*"
+
+[lib]
+name = "hypocloid"
+path = "src/lib.rs"

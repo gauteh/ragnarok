@@ -3,7 +3,7 @@
 
 [tasks.build]
 description = "Build gui and api"
-clear = true
+clear = false
 workspace = false
 dependencies = ["build_gui", "build_api", "build_app"]
 
@@ -17,12 +17,12 @@ description = "Build gui"
 workspace = false
 install_crate = { crate_name = "wasm-pack", binary = "wasm-pack", test_arg = "-V" }
 command = "wasm-pack"
-args = ["build", "astroid", "--target", "web", "--out-name", "gui", "--dev"]
+args = ["build", "astroid", "--target", "web", "--out-name", "astroid", "--dev"]
 
 [tasks.build_gui_release]
 extend = "build_gui"
 description = "Build gui in release mode"
-args = ["build", "astroid", "--target", "web", "--out-name", "gui", "--release"]
+args = ["build", "astroid", "--target", "web", "--out-name", "astroid", "--release"]
 
 [tasks.prepare_assets]
 description = "Copy assets for api"
