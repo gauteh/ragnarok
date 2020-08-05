@@ -16,8 +16,8 @@ mod threads;
 use state::*;
 
 pub async fn main() -> anyhow::Result<()> {
-    env_logger::from_env(Env::default().default_filter_or("hypocloid=debug,warp=info")).init();
-    info!("hypocloid!");
+    env_logger::from_env(Env::default().default_filter_or("hypocycloid=debug,warp=info")).init();
+    info!("hypocycloid!");
     info!("notmuch config: {}", notmuch_config().to_str().unwrap());
 
     let state = Arc::new(HypoState::new()?);
@@ -28,7 +28,7 @@ pub async fn main() -> anyhow::Result<()> {
     let api = assets
         .or(messages)
         .or(threads)
-        .with(warp::log("hypocloid::api"));
+        .with(warp::log("hypocycloid::api"));
 
     info!("Listening on 127.0.0.1:8088");
     warp::serve(api).run(([127, 0, 0, 1], 8088)).await;

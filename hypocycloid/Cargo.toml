@@ -1,10 +1,11 @@
 [package]
 authors = ["Gaute Hope <eg@gaute.vetsj.com>"]
 edition = "2018"
-name = "hypocloid"
+name = "hypocycloid"
 version = "0.1.0"
+
 [[bin]]
-name = "hypocloid"
+name = "hypocycloid"
 path = "src/main.rs"
 
 [dependencies]
@@ -33,5 +34,5 @@ features = ["full"]
 version = "*"
 
 [lib]
-name = "hypocloid"
+name = "hypocycloid"
 path = "src/lib.rs"

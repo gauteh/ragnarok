@@ -1,21 +1,15 @@
 [package]
-authors = ["Gaute Hope <eg@gaute.vetsj.com>"]
-edition = "2018"
 name = "astroid"
 version = "0.1.0"
+authors = ["Gaute Hope <eg@gaute.vetsj.com>"]
+edition = "2018"
 
-[lib]
-crate-type = ["cdylib"]
-path = "src/lib.rs"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = "*"
-wasm-bindgen = "*"
-yew = "*"
+web-view = { version = "*" }
+hypocycloid = { path = "../hypocycloid" }
 
-[dependencies.proto]
-path = "../proto"
-
-[dependencies.web-sys]
-features = ["Blob", "Event", "EventTarget", "File", "FileList", "FormData", "HtmlInputElement", "CloseEvent", "BeforeUnloadEvent"]
-version = "0.3.35"
+[dependencies.tokio]
+features = ["full"]
+version = "*"

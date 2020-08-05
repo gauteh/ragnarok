@@ -1,6 +1,6 @@
-use hypocloid;
+use hypocycloid;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    hypocloid::main().await
+    hypocycloid::main().await
 }

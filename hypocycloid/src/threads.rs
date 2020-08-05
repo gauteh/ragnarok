@@ -145,7 +145,7 @@ mod test_notmuch {
                 debug!("entries: {}", i);
             }
 
-            if i > 20000 {
+            if i > 10 {
                 break;
             }
         }
@@ -174,7 +174,7 @@ mod test_notmuch {
                 debug!("entries: {}", i);
             }
 
-            if i > 20000 {
+            if i > 10 {
                 break;
             }
         }

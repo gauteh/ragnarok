@@ -4,7 +4,7 @@ use rust_embed::RustEmbed;
 use warp_embed::embed;
 
 #[derive(RustEmbed)]
-#[folder = "../astroid/assets/"]
+#[folder = "../tetracuspid/assets/"]
 struct Assets;
 
 pub mod filters {

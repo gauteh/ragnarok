@@ -1,9 +1,9 @@
-use hypocloid;
+use hypocycloid;
 use web_view::*;
 
 #[tokio::main]
 async fn main() {
-    tokio::spawn(async move { hypocloid::main().await });
+    tokio::spawn(async move { hypocycloid::main().await });
 
     web_view::builder()
         .title("Astroid")

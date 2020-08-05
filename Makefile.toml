@@ -17,12 +17,12 @@ description = "Build gui"
 workspace = false
 install_crate = { crate_name = "wasm-pack", binary = "wasm-pack", test_arg = "-V" }
 command = "wasm-pack"
-args = ["build", "astroid", "--target", "web", "--out-name", "astroid", "--dev"]
+args = ["build", "tetracuspid", "--target", "web", "--out-name", "tetracuspid", "--dev"]
 
 [tasks.build_gui_release]
 extend = "build_gui"
 description = "Build gui in release mode"
-args = ["build", "astroid", "--target", "web", "--out-name", "astroid", "--release"]
+args = ["build", "tetracuspid", "--target", "web", "--out-name", "tetracuspid", "--release"]
 
 [tasks.prepare_assets]
 description = "Copy assets for api"
@@ -31,13 +31,13 @@ dependencies = ["build_gui"]
 script_runner = "@duckscript"
 script = [
 '''
-mkdir astroid/assets
+mkdir tetracuspid/assets
 
-cp astroid/pkg/astroid.js astroid/assets/astroid.js
-cp astroid/pkg/astroid_bg.wasm astroid/assets/astroid_bg.wasm
-cp astroid/index.html astroid/assets/index.html
-cp astroid/wing.min.css astroid/assets/wing.min.css
-cp README.md astroid/assets/README.md
+cp tetracuspid/pkg/tetracuspid.js tetracuspid/assets/tetracuspid.js
+cp tetracuspid/pkg/tetracuspid_bg.wasm tetracuspid/assets/tetracuspid_bg.wasm
+cp tetracuspid/index.html tetracuspid/assets/index.html
+cp tetracuspid/wing.min.css tetracuspid/assets/wing.min.css
+cp README.md tetracuspid/assets/README.md
 '''
 ]
 
@@ -49,25 +49,25 @@ dependencies = ["build_gui_release"]
 description = "Build api"
 workspace = false
 command = "cargo"
-args = ["build", "--package", "hypocloid"]
+args = ["build", "--package", "hypocycloid"]
 dependencies = ["prepare_assets"]
 
 [tasks.build_api_release]
 extend = "build_api"
 description = "Build api in release mode"
-args = ["build", "--package", "hypocloid", "--release"]
+args = ["build", "--package", "hypocycloid", "--release"]
 dependencies = ["prepare_assets_release"]
 
 [tasks.build_app]
 description = "Build app"
 workspace = false
 command = "cargo"
-args = ["build", "--package", "ragnarok"]
+args = ["build", "--package", "astroid"]
 
 [tasks.build_app_release]
 extend = "build_app"
 description = "Build app in release mode"
-args = ["build", "--package", "ragnarok", "--release"]
+args = ["build", "--package", "astroid", "--release"]
 
 # ---- START ----
 
@@ -75,13 +75,13 @@ args = ["build", "--package", "ragnarok", "--release"]
 description = "Build and start the api server on port 8080"
 workspace = false
 command = "cargo"
-args = ["run", "--package", "ragnarok"]
+args = ["run", "--package", "astroid"]
 dependencies = ["build"]
 
 [tasks.start_release]
 extend = "start"
 description = "Build and start the api server on port 8080"
-args = ["run", "--package", "ragnarok", "--release"]
+args = ["run", "--package", "astroid", "--release"]
 dependencies = ["build_release"]
 
 # ---- LINT ----

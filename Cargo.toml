@@ -1,7 +1,7 @@
 [workspace]
 
 members = [
-    "hypocloid",
+    "hypocycloid",
+    "tetracuspid",
     "astroid",
-    "ragnarok",
 ]
