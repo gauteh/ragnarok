@@ -1,0 +1,38 @@
+[package]
+authors = ["Gaute Hope <eg@gaute.vetsj.com>"]
+edition = "2018"
+name = "hypocycloid"
+version = "0.1.0"
+
+[[bin]]
+name = "hypocycloid"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "*"
+bytes = "*"
+dirs = "*"
+env_logger = "*"
+futures = "*"
+hyper = "*"
+itertools = "*"
+log = "*"
+notmuch = "*"
+rust-embed = "*"
+rust-ini = "*"
+serde = "*"
+serde_derive = "*"
+serde_json = "*"
+warp = "*"
+warp-embed = "*"
+
+[dependencies.proto]
+path = "../proto"
+
+[dependencies.tokio]
+features = ["full"]
+version = "*"
+
+[lib]
+name = "hypocycloid"
+path = "src/lib.rs"

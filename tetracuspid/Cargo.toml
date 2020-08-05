@@ -1,0 +1,21 @@
+[package]
+authors = ["Gaute Hope <eg@gaute.vetsj.com>"]
+edition = "2018"
+name = "tetracuspid"
+version = "0.1.0"
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[dependencies]
+serde = "*"
+wasm-bindgen = "*"
+yew = "*"
+
+[dependencies.proto]
+path = "../proto"
+
+[dependencies.web-sys]
+features = ["Blob", "Event", "EventTarget", "File", "FileList", "FormData", "HtmlInputElement", "CloseEvent", "BeforeUnloadEvent"]
+version = "0.3.35"
