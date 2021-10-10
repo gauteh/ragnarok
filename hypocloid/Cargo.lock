@@ -442,6 +442,7 @@ dependencies = [
  "itertools",
  "log",
  "notmuch",
+ "percent-encoding",
  "rust-ini",
  "serde",
  "serde_derive",

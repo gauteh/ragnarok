@@ -18,6 +18,7 @@ serde = "*"
 serde_derive = "*"
 serde_json = "*"
 warp = "*"
+percent-encoding = "2.1.0"
 
 [dependencies.tokio]
 features = ["full"]
