@@ -10,6 +10,7 @@ use warp::Filter;
 /* internal modules */
 mod messages;
 mod state;
+mod tags;
 mod threads;
 
 use state::*;
@@ -23,12 +24,15 @@ async fn main() -> anyhow::Result<()> {
     let state = Arc::new(HypoState::new()?);
     let threads = threads::filters::threads(state.clone());
     let messages = messages::filters::messages(state.clone());
+    let tags = tags::filters::all(state.clone());
 
-    let api = messages.or(threads).with(warp::log("hypocloid::api"));
+    let api = messages
+        .or(threads)
+        .or(tags)
+        .with(warp::log("hypocloid::api"));
 
     info!("Listening on 127.0.0.1:8088");
     warp::serve(api).run(([127, 0, 0, 1], 8088)).await;
 
     Ok(())
 }
-
