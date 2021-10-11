@@ -20,6 +20,12 @@ pub struct Thread {
     tags: Vec<String>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct TagRequest {
+    add: Option<Vec<String>>,
+    remove: Option<Vec<String>>,
+}
+
 pub struct Threads(notmuch::Threads<'static, 'static>);
 
 impl Threads {
@@ -84,6 +90,52 @@ pub mod handlers {
     pub async fn all(state: Arc<HypoState>) -> Result<impl warp::Reply, Infallible> {
         query("".to_string(), state).await
     }
+
+    pub async fn tag(
+        query: String,
+        command: TagRequest,
+        state: Arc<HypoState>,
+    ) -> Result<impl warp::Reply, Infallible> {
+        debug!("changing tags on {}: {:?}", query, command);
+
+        let nmdb = state
+            .notmuch_config
+            .get_from(Some("database"), "path")
+            .unwrap();
+
+        let db = Arc::new(
+            notmuch::Database::open(&String::from(nmdb), notmuch::DatabaseMode::ReadWrite).unwrap(),
+        );
+        let dbquery = Arc::new(notmuch::Query::create(db.clone(), &query).unwrap());
+        let messages =
+            <notmuch::Query<'static> as notmuch::QueryExt>::search_messages(dbquery.clone())
+                .unwrap();
+
+        for mh in messages {
+            match command.add {
+                Some(ref x) => {
+                    for tag in x {
+                        mh.add_tag(tag).unwrap();
+                    }
+                }
+                None => debug!("no tags to add")
+            }
+
+            match command.remove {
+                Some(ref x) => {
+                    for tag in x {
+                        mh.remove_tag(tag).unwrap();
+                    }
+                }
+                None => debug!("no tags to remove")
+            }
+ 
+        }
+
+        Ok(warp::http::StatusCode::NO_CONTENT)
+
+    }
+
 }
 
 pub mod filters {
@@ -92,7 +144,9 @@ pub mod filters {
     pub fn threads(
         state: Arc<HypoState>,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        all(state.clone()).or(query(state.clone()))
+        all(state.clone())
+            .or(query(state.clone()))
+            .or(tag(state.clone()))
     }
 
     pub fn all(
@@ -111,6 +165,16 @@ pub mod filters {
             .and(warp::get())
             .and(with_state(state))
             .and_then(handlers::query)
+    }
+
+    pub fn tag(
+        state: Arc<HypoState>,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("threads" / String / "tag")
+            .and(warp::post())
+            .and(warp::body::json())
+            .and(with_state(state))
+            .and_then(handlers::tag)
     }
 }
 
