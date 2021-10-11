@@ -2,7 +2,6 @@ use crate::state::{filters::with_state, HypoState};
 use bytes::Bytes;
 use futures::stream;
 use hyper::Body;
-use itertools::Itertools;
 use serde_derive::Serialize;
 use std::convert::Infallible;
 use std::sync::Arc;

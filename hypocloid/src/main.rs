@@ -1,4 +1,5 @@
 #![feature(test)]
+#![feature(iter_intersperse)]
 
 #[macro_use]
 extern crate log;
@@ -17,7 +18,7 @@ use state::*;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    env_logger::from_env(Env::default().default_filter_or("hypocloid=debug,warp=info")).init();
+    env_logger::Builder::from_env(Env::default().default_filter_or("hypocloid=debug,warp=info")).init();
     info!("hypocloid!");
     info!("notmuch config: {}", notmuch_config().to_str().unwrap());
 

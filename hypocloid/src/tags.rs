@@ -1,7 +1,7 @@
 use crate::state::{filters::with_state, HypoState};
 use std::convert::Infallible;
 use std::sync::Arc;
-use warp::{http::Response, reply::Reply, Filter};
+use warp::Filter;
 
 pub mod handlers {
     use super::*;
