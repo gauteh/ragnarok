@@ -44,7 +44,6 @@ pub mod handlers {
         use std::process::Command;
         debug!("changing tags on {}: {:?}", query, command);
 
-        // query("".to_string(), state).await
         let data = std::str::from_utf8(&command).unwrap();
 
         let messages = Command::new("notmuch").arg("tag").arg(data).arg(query).output();
