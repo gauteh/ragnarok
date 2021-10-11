@@ -36,6 +36,28 @@ pub mod handlers {
         }
     }
 
+    pub async fn tag(
+        query: String,
+        command: bytes::Bytes,
+        _: Arc<HypoState>,
+    ) -> Result<impl warp::Reply, Infallible> {
+        use std::process::Command;
+        debug!("changing tags on {}: {:?}", query, command);
+
+        // query("".to_string(), state).await
+        let data = std::str::from_utf8(&command).unwrap();
+
+        let messages = Command::new("notmuch").arg("tag").arg(data).arg(query).output();
+
+        match messages {
+            Ok(messages) => Ok(Response::builder()
+                .header("Content-Type", "application/json")
+                .body(messages.stdout)
+                .into_response()),
+            Err(_) => Ok(warp::http::StatusCode::BAD_REQUEST.into_response()),
+        }
+    }
+
     pub async fn all(state: Arc<HypoState>) -> Result<impl warp::Reply, Infallible> {
         query("".to_string(), state).await
     }
@@ -47,7 +69,9 @@ pub mod filters {
     pub fn messages(
         state: Arc<HypoState>,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        all(state.clone()).or(query(state.clone()))
+        all(state.clone())
+            .or(query(state.clone()))
+            .or(tag(state.clone()))
     }
 
     pub fn all(
@@ -66,5 +90,15 @@ pub mod filters {
             .and(warp::get())
             .and(with_state(state))
             .and_then(handlers::query)
+    }
+
+    pub fn tag(
+        state: Arc<HypoState>,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("messages" / String)
+            .and(warp::post())
+            .and(warp::body::bytes())
+            .and(with_state(state))
+            .and_then(handlers::tag)
     }
 }
