@@ -15,7 +15,9 @@ pub mod handlers {
             .unwrap();
 
         let db = Arc::new(notmuch::Database::open(&db, notmuch::DatabaseMode::ReadOnly).unwrap());
-        Ok(warp::reply::json(&db.all_tags().unwrap().collect::<Vec<String>>()))
+        Ok(warp::reply::json(
+            &db.all_tags().unwrap().collect::<Vec<String>>(),
+        ))
     }
 }
 

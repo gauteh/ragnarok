@@ -2,11 +2,11 @@ use crate::state::{filters::with_state, HypoState};
 use bytes::Bytes;
 use futures::stream;
 use hyper::Body;
+use percent_encoding::percent_decode_str;
 use serde_derive::Serialize;
 use std::convert::Infallible;
 use std::sync::Arc;
 use warp::{http::Response, Filter};
-use percent_encoding::{percent_decode_str};
 
 #[derive(Debug, Serialize)]
 pub struct Thread {
@@ -28,7 +28,8 @@ impl Threads {
 
         let formatted = &percent_decode_str(&q).decode_utf8();
         debug!("threads query: {}..", formatted.as_ref().unwrap());
-        let query = Arc::new(notmuch::Query::create(db.clone(), &formatted.as_ref().unwrap()).unwrap());
+        let query =
+            Arc::new(notmuch::Query::create(db.clone(), &formatted.as_ref().unwrap()).unwrap());
 
         let threads =
             <notmuch::Query<'static> as notmuch::QueryExt>::search_threads(query.clone()).unwrap();
@@ -175,11 +176,11 @@ mod test_notmuch {
                 debug!("entries: {}", i);
             }
 
-        if i > 20000 {
-            break;
+            if i > 20000 {
+                break;
+            }
         }
-    }
 
-    debug!("entries: {}", i);
+        debug!("entries: {}", i);
     }
 }
