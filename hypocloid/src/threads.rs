@@ -2,11 +2,11 @@ use crate::state::{filters::with_state, HypoState};
 use bytes::Bytes;
 use futures::stream;
 use hyper::Body;
-use serde_derive::Serialize;
+use percent_encoding::percent_decode_str;
+use serde_derive::{Deserialize, Serialize};
 use std::convert::Infallible;
 use std::sync::Arc;
 use warp::{http::Response, Filter};
-use percent_encoding::{percent_decode_str};
 
 #[derive(Debug, Serialize)]
 pub struct Thread {
@@ -34,7 +34,8 @@ impl Threads {
 
         let formatted = &percent_decode_str(&q).decode_utf8();
         debug!("threads query: {}..", formatted.as_ref().unwrap());
-        let query = Arc::new(notmuch::Query::create(db.clone(), &formatted.as_ref().unwrap()).unwrap());
+        let query =
+            Arc::new(notmuch::Query::create(db.clone(), &formatted.as_ref().unwrap()).unwrap());
 
         let threads =
             <notmuch::Query<'static> as notmuch::QueryExt>::search_threads(query.clone()).unwrap();
@@ -91,11 +92,11 @@ pub mod handlers {
         query("".to_string(), state).await
     }
 
-    pub async fn tag(
+    pub fn tag(
         query: String,
         command: TagRequest,
         state: Arc<HypoState>,
-    ) -> Result<impl warp::Reply, Infallible> {
+    ) -> impl warp::Reply {
         debug!("changing tags on {}: {:?}", query, command);
 
         let nmdb = state
@@ -103,13 +104,11 @@ pub mod handlers {
             .get_from(Some("database"), "path")
             .unwrap();
 
-        let db = Arc::new(
-            notmuch::Database::open(&String::from(nmdb), notmuch::DatabaseMode::ReadWrite).unwrap(),
-        );
-        let dbquery = Arc::new(notmuch::Query::create(db.clone(), &query).unwrap());
+        let db =
+            notmuch::Database::open(&String::from(nmdb), notmuch::DatabaseMode::ReadWrite).unwrap();
+        let dbquery = notmuch::Query::create(db, &query).unwrap();
         let messages =
-            <notmuch::Query<'static> as notmuch::QueryExt>::search_messages(dbquery.clone())
-                .unwrap();
+            <notmuch::Query<'static> as notmuch::QueryExt>::search_messages(dbquery).unwrap();
 
         for mh in messages {
             match command.add {
@@ -118,7 +117,7 @@ pub mod handlers {
                         mh.add_tag(tag).unwrap();
                     }
                 }
-                None => debug!("no tags to add")
+                None => debug!("no tags to add"),
             }
 
             match command.remove {
@@ -127,15 +126,12 @@ pub mod handlers {
                         mh.remove_tag(tag).unwrap();
                     }
                 }
-                None => debug!("no tags to remove")
+                None => debug!("no tags to remove"),
             }
- 
         }
 
-        Ok(warp::http::StatusCode::NO_CONTENT)
-
+        warp::http::StatusCode::NO_CONTENT
     }
-
 }
 
 pub mod filters {
@@ -174,7 +170,7 @@ pub mod filters {
             .and(warp::post())
             .and(warp::body::json())
             .and(with_state(state))
-            .and_then(handlers::tag)
+            .map(handlers::tag)
     }
 }
 
@@ -239,11 +235,11 @@ mod test_notmuch {
                 debug!("entries: {}", i);
             }
 
-        if i > 20000 {
-            break;
+            if i > 20000 {
+                break;
+            }
         }
-    }
 
-    debug!("entries: {}", i);
+        debug!("entries: {}", i);
     }
 }
