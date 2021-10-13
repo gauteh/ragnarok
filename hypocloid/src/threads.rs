@@ -27,9 +27,10 @@ impl Threads {
         let db = Arc::new(notmuch::Database::open(&db, notmuch::DatabaseMode::ReadOnly).unwrap());
 
         let formatted = &percent_decode_str(&q).decode_utf8();
+
         debug!("threads query: {}..", formatted.as_ref().unwrap());
         let query =
-            Arc::new(notmuch::Query::create(db.clone(), &formatted.as_ref().unwrap()).unwrap());
+            Arc::new(notmuch::Query::create(db.clone(), &("thread:".to_owned()+&formatted.as_ref().unwrap())).unwrap());
 
         let threads =
             <notmuch::Query<'static> as notmuch::QueryExt>::search_threads(query.clone()).unwrap();
