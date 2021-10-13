@@ -13,6 +13,7 @@ mod messages;
 mod state;
 mod tags;
 mod threads;
+mod models;
 
 use state::*;
 

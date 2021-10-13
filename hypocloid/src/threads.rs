@@ -3,10 +3,11 @@ use bytes::Bytes;
 use futures::stream;
 use hyper::Body;
 use percent_encoding::percent_decode_str;
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Serialize;
 use std::convert::Infallible;
 use std::sync::Arc;
 use warp::{http::Response, Filter};
+use crate::models::TagRequest;
 
 #[derive(Debug, Serialize)]
 pub struct Thread {
@@ -19,13 +20,6 @@ pub struct Thread {
     unread: bool,
     tags: Vec<String>,
 }
-
-#[derive(Deserialize, Debug)]
-pub struct TagRequest {
-    add: Option<Vec<String>>,
-    remove: Option<Vec<String>>,
-}
-
 pub struct Threads(notmuch::Threads<'static, 'static>);
 
 impl Threads {
