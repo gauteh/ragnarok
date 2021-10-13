@@ -96,27 +96,36 @@ pub mod handlers {
 
         let db =
             notmuch::Database::open(&String::from(nmdb), notmuch::DatabaseMode::ReadWrite).unwrap();
-        let dbquery = notmuch::Query::create(db, &query).unwrap();
-        let messages =
-            <notmuch::Query<'static> as notmuch::QueryExt>::search_messages(dbquery).unwrap();
 
-        for mh in messages {
-            match command.add {
-                Some(ref x) => {
-                    for tag in x {
-                        mh.add_tag(tag).unwrap();
-                    }
-                }
-                None => debug!("no tags to add"),
-            }
+        // let query = db.create_query(&query).unwrap();
+        let query = notmuch::Query::create(db, &query).unwrap();
+        let threads =
+            <notmuch::Query<'static> as notmuch::QueryExt>::search_threads(query).unwrap();
 
-            match command.remove {
-                Some(ref x) => {
-                    for tag in x {
-                        mh.remove_tag(tag).unwrap();
+        for th in threads {
+            debug!("THREAD ID: {:?}", th.id());
+            // let query = db.create_query(&("thread:".to_owned() + th.id())).unwrap();
+            let query = notmuch::Query::create(db, &("thread:".to_owned() + th.id())).unwrap();
+            let messages =
+                <notmuch::Query<'static> as notmuch::QueryExt>::search_messages(query).unwrap();
+            for mh in messages {
+                debug!("Message ID: {:?}", mh.id());
+                match command.add {
+                    Some(ref x) => {
+                        for tag in x {
+                            mh.add_tag(tag).unwrap();
+                        }
                     }
+                    None => debug!("no tags to add"),
                 }
-                None => debug!("no tags to remove"),
+                match command.remove {
+                    Some(ref x) => {
+                        for tag in x {
+                            mh.remove_tag(tag).unwrap();
+                        }
+                    }
+                    None => debug!("no tags to remove"),
+                }
             }
         }
 
