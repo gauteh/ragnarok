@@ -36,18 +36,11 @@ pub mod handlers {
         }
     }
 
-    
-
     pub async fn all(state: Arc<HypoState>) -> Result<impl warp::Reply, Infallible> {
         query("".to_string(), state).await
     }
 
-
-    pub fn tag(
-        query: String,
-        command: TagRequest,
-        state: Arc<HypoState>,
-    ) -> impl warp::Reply {
+    pub fn tag(query: String, command: TagRequest, state: Arc<HypoState>) -> impl warp::Reply {
         debug!("changing tags on {}: {:?}", query, command);
 
         let nmdb = state
@@ -57,7 +50,7 @@ pub mod handlers {
 
         let db =
             notmuch::Database::open(&String::from(nmdb), notmuch::DatabaseMode::ReadWrite).unwrap();
-        let dbquery =  notmuch::Query::create(db, &query).unwrap();
+        let dbquery = notmuch::Query::create(db, &query).unwrap();
 
         let messages =
             <notmuch::Query<'static> as notmuch::QueryExt>::search_messages(dbquery).unwrap();
@@ -84,7 +77,6 @@ pub mod handlers {
 
         warp::http::StatusCode::NO_CONTENT
     }
-
 }
 
 pub mod filters {
@@ -126,4 +118,3 @@ pub mod filters {
             .map(handlers::tag)
     }
 }
-

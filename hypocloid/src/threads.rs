@@ -1,3 +1,4 @@
+use crate::models::TagRequest;
 use crate::state::{filters::with_state, HypoState};
 use bytes::Bytes;
 use futures::stream;
@@ -7,7 +8,6 @@ use serde_derive::Serialize;
 use std::convert::Infallible;
 use std::sync::Arc;
 use warp::{http::Response, Filter};
-use crate::models::TagRequest;
 
 #[derive(Debug, Serialize)]
 pub struct Thread {
@@ -86,11 +86,7 @@ pub mod handlers {
         query("".to_string(), state).await
     }
 
-    pub fn tag(
-        query: String,
-        command: TagRequest,
-        state: Arc<HypoState>,
-    ) -> impl warp::Reply {
+    pub fn tag(query: String, command: TagRequest, state: Arc<HypoState>) -> impl warp::Reply {
         debug!("changing tags on {}: {:?}", query, command);
 
         let nmdb = state
