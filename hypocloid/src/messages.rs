@@ -56,6 +56,7 @@ pub mod handlers {
             <notmuch::Query<'static> as notmuch::QueryExt>::search_messages(dbquery).unwrap();
 
         for mh in messages {
+            debug!("Message ID: {:?}", mh.id());
             match command.add {
                 Some(ref x) => {
                     for tag in x {

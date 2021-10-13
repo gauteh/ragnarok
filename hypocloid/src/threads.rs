@@ -97,7 +97,6 @@ pub mod handlers {
         let db =
             notmuch::Database::open(&String::from(nmdb), notmuch::DatabaseMode::ReadWrite).unwrap();
 
-        // let query = db.create_query(&query).unwrap();
         let query = notmuch::Query::create(db, &query).unwrap();
         let threads =
             <notmuch::Query<'static> as notmuch::QueryExt>::search_threads(query).unwrap();
