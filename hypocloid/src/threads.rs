@@ -103,12 +103,8 @@ pub mod handlers {
             <notmuch::Query<'static> as notmuch::QueryExt>::search_threads(query).unwrap();
 
         for th in threads {
-            debug!("THREAD ID: {:?}", th.id());
-            // let query = db.create_query(&("thread:".to_owned() + th.id())).unwrap();
-            let query = notmuch::Query::create(db, &("thread:".to_owned() + th.id())).unwrap();
-            let messages =
-                <notmuch::Query<'static> as notmuch::QueryExt>::search_messages(query).unwrap();
-            for mh in messages {
+            debug!("Thread ID: {:?}", th.id());
+            for mh in th.messages() {
                 debug!("Message ID: {:?}", mh.id());
                 match command.add {
                     Some(ref x) => {
