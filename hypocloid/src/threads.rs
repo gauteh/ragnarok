@@ -196,11 +196,7 @@ mod test_notmuch {
         for _t in threads {
             i += 1;
 
-            if i % 500 == 0 {
-                debug!("entries: {}", i);
-            }
-
-            if i > 20000 {
+            if i > 20 {
                 break;
             }
         }
@@ -225,11 +221,7 @@ mod test_notmuch {
         for _t in threads {
             i += 1;
 
-            if i % 500 == 0 {
-                debug!("entries: {}", i);
-            }
-
-            if i > 20000 {
+            if i > 20 {
                 break;
             }
         }

@@ -26,6 +26,51 @@ impl HypoState {
             notmuch_config: Ini::load_from_file(notmuch_config())?,
         })
     }
+
+    /// Get the path to the notmuch database.
+    fn db_path(&self) -> path::PathBuf {
+        match env::var_os("NOTMUCH_DATABASE") {
+            Some(p) => path::PathBuf::from(p),
+            None => match self.notmuch_config.get_from(Some("database"), "path") {
+                Some(p) => path::PathBuf::from(p),
+                None => dirs::home_dir().unwrap().join("mail"),
+            },
+        }
+    }
+
+    /// Asynchronously open a read-only database.
+    pub async fn db(&self) -> anyhow::Result<notmuch::Database> {
+        let path = self.db_path();
+        trace!("opening db (read-only): {:?}", path);
+
+        for _ in 0..30 {
+            if let Ok(db) = notmuch::Database::open(&path, notmuch::DatabaseMode::ReadOnly) {
+                return Ok(db);
+            } else {
+                tokio::time::sleep(tokio::time::Duration::from_secs_f64(0.5)).await;
+            }
+        }
+
+        Err(anyhow::anyhow!("opening database timed out"))
+    }
+
+    /// Asynchronously open a read-write database.
+    pub async fn db_rw(&self) -> anyhow::Result<notmuch::Database> {
+        let path = self.db_path();
+        trace!("opening db (read-write): {:?}", path);
+
+        // Opening a database in read-write mode requires exclusive access. And could
+        // potentially take a while to get. Wait 1 minute.
+        for _ in 0..120 {
+            if let Ok(db) = notmuch::Database::open(&path, notmuch::DatabaseMode::ReadWrite) {
+                return Ok(db);
+            } else {
+                tokio::time::sleep(tokio::time::Duration::from_secs_f64(0.5)).await;
+            }
+        }
+
+        Err(anyhow::anyhow!("opening database timed out"))
+    }
 }
 
 pub mod filters {
