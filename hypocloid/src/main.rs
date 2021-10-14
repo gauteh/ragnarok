@@ -10,6 +10,7 @@ use warp::Filter;
 
 /* internal modules */
 mod messages;
+mod models;
 mod state;
 mod tags;
 mod threads;

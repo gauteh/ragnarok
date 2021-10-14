@@ -3,6 +3,8 @@ use std::convert::Infallible;
 use std::sync::Arc;
 use warp::{http::Response, reply::Reply, Filter};
 
+use crate::models::TagRequest;
+
 pub mod handlers {
     use super::*;
 
@@ -37,6 +39,45 @@ pub mod handlers {
     pub async fn all(state: Arc<HypoState>) -> Result<impl warp::Reply, Infallible> {
         query("".to_string(), state).await
     }
+
+    pub fn tag(query: String, command: TagRequest, state: Arc<HypoState>) -> impl warp::Reply {
+        debug!("changing tags on {}: {:?}", query, command);
+
+        let nmdb = state
+            .notmuch_config
+            .get_from(Some("database"), "path")
+            .unwrap();
+
+        let db =
+            notmuch::Database::open(&String::from(nmdb), notmuch::DatabaseMode::ReadWrite).unwrap();
+        let dbquery = notmuch::Query::create(db, &query).unwrap();
+
+        let messages =
+            <notmuch::Query<'static> as notmuch::QueryExt>::search_messages(dbquery).unwrap();
+
+        for mh in messages {
+            debug!("Message ID: {:?}", mh.id());
+            match command.add {
+                Some(ref x) => {
+                    for tag in x {
+                        mh.add_tag(tag).unwrap();
+                    }
+                }
+                None => debug!("no tags to add"),
+            }
+
+            match command.remove {
+                Some(ref x) => {
+                    for tag in x {
+                        mh.remove_tag(tag).unwrap();
+                    }
+                }
+                None => debug!("no tags to remove"),
+            }
+        }
+
+        warp::http::StatusCode::NO_CONTENT
+    }
 }
 
 pub mod filters {
@@ -45,7 +86,9 @@ pub mod filters {
     pub fn messages(
         state: Arc<HypoState>,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        all(state.clone()).or(query(state.clone()))
+        all(state.clone())
+            .or(query(state.clone()))
+            .or(tag(state.clone()))
     }
 
     pub fn all(
@@ -64,5 +107,15 @@ pub mod filters {
             .and(warp::get())
             .and(with_state(state))
             .and_then(handlers::query)
+    }
+
+    pub fn tag(
+        state: Arc<HypoState>,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("messages" / String / "tag")
+            .and(warp::post())
+            .and(warp::body::json())
+            .and(with_state(state))
+            .map(handlers::tag)
     }
 }
