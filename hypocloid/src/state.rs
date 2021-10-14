@@ -26,6 +26,23 @@ impl HypoState {
             notmuch_config: Ini::load_from_file(notmuch_config())?,
         })
     }
+
+    /// Get the path to the notmuch database.
+    fn db_path(&self) -> path::PathBuf {
+        match env::var_os("NOTMUCH_CONFIG") {
+            Some(p) => path::PathBuf::from(p),
+            None => {
+                match self.notmuch_config.get_from(Some("database"), "path") {
+                    Some(p) => path::PathBuf::from(p),
+                    None => dirs::home_dir().unwrap().join("mail")
+                }
+            }
+        }
+    }
+
+    pub async fn db(&self) -> anyhow::Result<notmuch::Database> {
+        unimplemented!()
+    }
 }
 
 pub mod filters {

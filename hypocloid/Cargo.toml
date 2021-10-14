@@ -3,10 +3,11 @@ authors = ["Gaute Hope <eg@gaute.vetsj.com>"]
 edition = "2021"
 name = "hypocloid"
 version = "0.1.0"
+
 [dependencies]
 anyhow = "*"
 bytes = "*"
-dirs = "*"
+dirs = "4.0.0"
 env_logger = "*"
 futures = "*"
 hyper = "*"
