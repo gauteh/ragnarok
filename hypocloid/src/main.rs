@@ -4,6 +4,7 @@
 #[macro_use]
 extern crate log;
 
+use argh::FromArgs;
 use env_logger::Env;
 use std::env;
 use std::sync::Arc;
@@ -18,8 +19,17 @@ mod threads;
 
 use state::*;
 
+#[derive(FromArgs)]
+/// Reach new heights.
+struct Options {
+    /// add CORS headers allowing the specified origin
+    #[argh(option)]
+    allow_cors: Option<String>,
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let options: Options = argh::from_env();
     env_logger::Builder::from_env(Env::default().default_filter_or("hypocloid=debug,warp=info"))
         .init();
     info!("hypocloid!");
@@ -30,17 +40,14 @@ async fn main() -> anyhow::Result<()> {
     let messages = messages::filters::messages(state.clone());
     let tags = tags::filters::all(state.clone());
 
-    let args: Vec<String> = env::args().collect();
-    let cors = warp::cors()
-        .allow_origin("http://localhost:3000")
-        .allow_methods(&[Method::GET, Method::POST, Method::DELETE]);
-    let mut is_cors = false;
+    if options.allow_cors.is_some() {
+        let origin = options.allow_cors.unwrap();
+        let cors = warp::cors().allow_origin(&*origin).allow_methods(&[
+            Method::GET,
+            Method::POST,
+            Method::DELETE,
+        ]);
 
-    if args.iter().any(|i| i == "--allow-cors") {
-        is_cors = true;
-    }
-
-    if is_cors {
         let api = messages
             .or(threads)
             .or(tags)
