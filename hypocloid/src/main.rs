@@ -46,7 +46,7 @@ async fn main() -> anyhow::Result<()> {
             Method::GET,
             Method::POST,
             Method::DELETE,
-        ]);
+        ]).allow_headers(vec!["Content-Type"]);
 
         let api = messages
             .or(threads)
