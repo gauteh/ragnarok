@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwindcss/forms;
+
+#app {
+  color: #f8f8f2;
+  background: #282a36;
+}
+
+@keyframes fadeAnimation {
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
